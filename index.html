@@ -2105,34 +2105,31 @@ const res = await fetch(`${API_URL}?action=getInitialData&festivalId=${state.act
         doc.setTextColor(120);
         doc.text(`Report Date: ${genDate} | Financial Audit Summary`, 40, 80);
 
-        // Smart Category Detection (Agar sheet me column ho toh wo, nahi toh remark se auto-detect)
-        // Strict Category: Sirf Category column padhega, Remark ko bilkul nahi dekhega
-        const detectEnglishCategory = (item) => {
-          // Sheet se category column ki value nikaalna
-          const catVal = String(item["Category"] || item["category"] || item["खर्च श्रेणी"] || item["Expense Category"] || item[10] || "").trim();
+        // Clean Category Mapping (Column K ke hisab se)
+        const formatExpenseCategory = (item) => {
+          const cat = String(item["Category"] || item["category"] || item["खर्च श्रेणी"] || item[10] || "").trim();
 
-          // Shart: Agar Category ka column KHALI hai, toh chupchaap Miscellaneous me daalo
-          if (!catVal) {
+          if (!cat) {
             return "Miscellaneous / Other Expenses";
           }
 
-          // Shart: Agar Category bhari hui hai, toh use clean English me convert karo
-          if (catVal.includes("मूर्ति") || catVal.includes("श्रृंगार")) return "Murti & Shringar";
-          if (catVal.includes("टेंट") || catVal.includes("लाइट") || catVal.includes("साउंड")) return "Tent, Sound & Lighting";
-          if (catVal.includes("पूजा") || catVal.includes("हवन")) return "Puja Samagri & Rituals";
-          if (catVal.includes("प्रसाद") || catVal.includes("खानपान") || catVal.includes("भंडारा")) return "Prasad & Catering";
-          if (catVal.includes("विसर्जन") || catVal.includes("बाजा")) return "Visarjan, Band & Fireworks";
-          if (catVal.includes("विविध") || catVal.includes("अन्य")) return "Miscellaneous / Other Expenses";
+          if (cat.includes("मूर्ति") || cat.includes("श्रृंगार")) return "Murti & Shringar";
+          if (cat.includes("टेंट") || cat.includes("लाइट") || cat.includes("साउंड")) return "Tent, Light & Sound";
+          if (cat.includes("पूजा") || cat.includes("हवन")) return "Puja Samagri & Rituals";
+          if (cat.includes("प्रसाद") || cat.includes("खानपान") || cat.includes("भंडारा")) return "Prasad, Bhog & Catering";
+          if (cat.includes("विसर्जन") || cat.includes("बाजा")) return "Visarjan, Band & Fireworks";
+          if (cat.includes("किराना")) return "Kirana Saman";
+          if (cat.includes("विविध") || cat.includes("अन्य")) return "Miscellaneous / Other Expenses";
 
-          return catVal; // Agar sheet me pehle se English me likha hai toh waisa hi aayega
+          return cat;
         };
 
-        // Category-wise Breakdown calculation
+        // Category-wise totals grouping
         const expCategoryMap = {};
         (state.data.expenses || []).forEach(item => {
-          const cat = detectEnglishCategory(item);
+          const categoryName = formatExpenseCategory(item);
           const amt = Number(item.Amount || item.amount) || 0;
-          expCategoryMap[cat] = (expCategoryMap[cat] || 0) + amt;
+          expCategoryMap[categoryName] = (expCategoryMap[categoryName] || 0) + amt;
         });
 
         // 4 Heads Income + Category-wise Expenses Breakdown Table
