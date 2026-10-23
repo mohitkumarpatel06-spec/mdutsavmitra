@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="hi" class="light" style="font-size: 17px;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matrodih Utsav Samiti - Live Accounting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@google/noto-sans-devanagari@1.0.0/index.min.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <style>
+    /* Light Mode: Stylish Pearl Cream Background */
+    html.light body {
+      background-color: #F7F3EE;
+      color: #1F2937;
+    }
+    html.light .card-3d {
+      background-color: #FFFFFF;
+      border: 1px solid #EADBCC;
+      box-shadow: 0 10px 25px -5px rgba(180, 140, 100, 0.15), 0 8px 10px -6px rgba(180, 140, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+    html.light .card-3d:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 12px -2px rgba(180, 140, 100, 0.12);
+    }
+    html.light .pill-amount-3d {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+    html.light .input-3d {
+      background-color: #FAF7F2;
+      border: 1px solid #DFD5C6;
+      color: #1F2937;
+    }
+
+    /* Dark Mode: Obsidian Slate (Gramin Seva Portal Look) */
+    html.dark body {
+      background-color: #0B1120;
+      color: #F8FAFC;
+    }
+    html.dark .card-3d {
+      background-color: #151F32;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    html.dark .card-3d:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+    }
+    html.dark .pill-amount-3d {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    html.dark .input-3d {
+      background-color: #0F172A;
+      border: 1px solid #334155;
+      color: #FFFFFF;
+    }
+
+    /* Common Button 3D */
+    .btn-3d {
+      box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .btn-3d:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 transition-colors duration-200">
+
+  <!-- SCREEN 1: REGISTRATION PAGE OVERLAY -->
+  <div id="mandatoryRegScreen" class="fixed inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+    <div class="card-3d rounded-3xl p-6 w-full max-w-sm shadow-2xl text-center space-y-4 my-auto relative">
+      <div class="flex justify-end">
+        <button type="button" onclick="openAdminFromRegScreen()" class="text-[12px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1 cursor-pointer">
+          🔐 <span data-i18n="adminLogin">व्यवस्थापक लॉगिन (Admin)</span>
+        </button>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-black text-amber-500 tracking-wide" data-i18n="welcome">स्वागतम् 🙏</h2>
+        <p class="text-sm opacity-75 mt-0.5" data-i18n="welcomeSub">मातरोडीह उत्सव समिति ऐप में आपका स्वागत है</p>
+        <p class="text-[12px] font-semibold text-amber-600 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 py-1.5 px-3 rounded-xl mt-2" data-i18n="fillDetails">
+          आगे बढ़ने के लिए कृपया अपना विवरण दर्ज करें
+        </p>
+      </div>
+
+      <form onsubmit="handleMandatoryRegister(event)" class="space-y-3.5 text-left text-sm">
+        <div class="space-y-1.5 text-center">
+          <label class="block text-sm font-semibold opacity-80">
+            <span data-i18n="selfiePhoto">सेल्फी फोटो</span> <span class="text-[11px] opacity-60 font-normal" data-i18n="optional">(वैकल्पिक / Optional)</span>
+          </label>
+          <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-dashed border-amber-400 shadow-lg bg-gray-500/10 flex items-center justify-center">
+            <video id="selfieVideo" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+            <canvas id="selfieCanvas" class="hidden"></canvas>
+            <img id="selfiePreview" src="" class="w-full h-full object-cover hidden" alt="Selfie Preview" />
+            <div id="selfiePlaceholder" class="opacity-50 text-3xl">📷</div>
+          </div>
+          <div class="flex justify-center gap-2 pt-1">
+            <button type="button" id="btnStartCam" onclick="startCamera()" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-full font-bold text-[11px] shadow-sm cursor-pointer" data-i18n="openCam">कैमरा खोलें 📸</button>
+            <button type="button" id="btnCapturePhoto" onclick="captureSelfie()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-[11px] shadow-sm hidden cursor-pointer" data-i18n="takePhoto">फोटो खींचें 🤳</button>
+            <button type="button" id="btnRetakePhoto" onclick="startCamera()" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-full font-bold text-[11px] shadow-sm hidden cursor-pointer" data-i18n="retakePhoto">दोबारा लें 🔄</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block opacity-80 font-semibold mb-1" data-i18n="lblFullName">पूरा नाम (Full Name) *</label>
+          <input type="text" id="regNameInput" required placeholder="अपना नाम दर्ज करें" class="input-3d w-full rounded-xl p-2.5 outline-none text-sm focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <div>
+          <label class="block opacity-80 font-semibold mb-1" data-i18n="lblMobile">मोबाइल नंबर (Mobile Number) *</label>
+          <input type="tel" id="regPhoneInput" required maxlength="10" placeholder="10 अंकों का मोबाइल नंबर" class="input-3d w-full rounded-xl p-2.5 outline-none text-sm focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <div>
+          <label class="block opacity-80 font-semibold mb-1" data-i18n="lblSelectActiveFest">सक्रिय त्यौहार चुनें (Select Active Festival) *</label>
+          <select id="regFestivalInput" class="input-3d w-full rounded-xl p-2.5 outline-none text-sm font-medium"></select>
+        </div>
+
+        <button type="submit" id="btnCompleteReg" class="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-black py-3 rounded-2xl shadow-xl transition text-sm flex items-center justify-center gap-1.5 mt-2 cursor-pointer btn-3d">
+          <span data-i18n="submitReg">पंजीकरण भेजें</span> ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: STRICT PENDING APPROVAL LOCK SCREEN -->
+  <div id="pendingLockScreen" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+    <div class="card-3d rounded-3xl p-6 w-full max-w-sm shadow-2xl text-center space-y-4 my-auto">
+      <div class="w-16 h-16 bg-amber-500/10 text-amber-500 mx-auto rounded-full flex items-center justify-center text-4xl shadow-inner border border-amber-500/30 animate-pulse">
+        ⏳
+      </div>
+      <div>
+        <h2 class="text-xl font-black text-amber-500" data-i18n="approvalPending">अनुमोदन लंबित (Approval Pending)</h2>
+        <p class="text-sm opacity-80 mt-1">
+          <span data-i18n="hello">नमस्ते</span> <span id="lockUserName" class="font-bold text-amber-500"></span> <span data-i18n="regReceived">जी, आपका पंजीकरण अनुरोध प्राप्त हो चुका है।</span>
+        </p>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 text-sm text-left space-y-1">
+        <p class="font-bold text-amber-600 dark:text-amber-300" data-i18n="adminPermRequired">व्यवस्थापक अनुमति आवश्यक है:</p>
+        <p class="opacity-80 text-[12px] leading-relaxed" data-i18n="adminLockDesc">
+          जब तक समिति व्यवस्थापक (Admin) आपके खाते को स्वीकृत (Approve) नहीं करते, तब तक ऐप की सामग्री लॉक रहेगी। कृपया Admin से संपर्क करें।
+        </p>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <button onclick="checkLiveApprovalStatus()" id="btnCheckStatus" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer btn-3d">
+          <span data-i18n="checkStatus">स्थिति जांचें (Check Status)</span> 🔄
+        </button>
+        <button onclick="openAdminFromRegScreen()" class="w-full bg-gray-500/10 opacity-80 hover:opacity-100 font-semibold py-2 rounded-xl text-sm cursor-pointer" data-i18n="adminLogin">
+          🔐 व्यवस्थापक लॉगिन (Admin Login)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROYAL UNIFIED HEADER WITH DARK/LIGHT BUTTON -->
+  <header class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 dark:from-[#111827] dark:via-[#161F30] dark:to-[#0F172A] border-b border-amber-500/30 px-4 py-3 sticky top-0 z-40 shadow-xl text-white">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="font-black text-lg md:text-xl tracking-wide text-white dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-amber-300 dark:via-orange-400 dark:to-amber-200" id="hdrTitle">मातरोडीह उत्सव समिति</h1>
+        <p class="text-[12px] text-amber-100 dark:text-amber-200/70 flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+          <span data-i18n="subTitle">मातरोडीह | Live लेखा प्रणाली</span>
+        </p>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleLang()" class="bg-black/20 hover:bg-black/30 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700 px-2.5 py-1 rounded-full text-xs font-bold text-amber-100 dark:text-amber-300 cursor-pointer shadow-sm">
+          🌐 <span id="langTxt">EN</span>
+        </button>
+        <!-- DARK / LIGHT MODE TOGGLE BUTTON -->
+        <button onclick="toggleTheme()" class="bg-black/20 hover:bg-black/30 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700 p-1.5 rounded-full text-xs cursor-pointer shadow-sm">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <!-- Discreet Secret Admin Lock Button -->
+        <button onclick="switchTab('admin')" title="Admin Login" class="bg-black/20 hover:bg-black/30 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700 p-1.5 rounded-full text-xs cursor-pointer shadow-sm">
+          🔒
+        </button>
+        <button onclick="openProfileModal()" id="userHeaderProfile" class="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 dark:bg-gray-800/90 border border-white/20 dark:border-amber-500/40 pl-1 pr-2.5 py-1 rounded-full transition cursor-pointer shadow-sm">
+          <img id="userHeaderAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=user" class="w-7 h-7 rounded-full object-cover border border-amber-300 bg-white" alt="Avatar" />
+          <span id="userHeaderName" class="text-xs font-bold text-white dark:text-amber-200 truncate max-w-[70px]">User U</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto px-3.5 py-3.5 space-y-3.5">
+
+    <!-- Floating Festival Selector -->
+    <div class="card-3d rounded-2xl p-2.5 shadow-md flex items-center justify-between gap-2">
+      <span class="text-xs font-black text-amber-600 dark:text-amber-400 whitespace-nowrap flex items-center gap-1">
+        🎪 <span id="txtSelectFest" data-i18n="selectFest">उत्सव:</span>
+      </span>
+      <select id="festSelect" onchange="onFestivalChange(this.value)" class="input-3d w-full rounded-xl py-1 px-2.5 text-xs font-bold outline-none text-right">
+        <option value="">लोड हो रहा है...</option>
+      </select>
+    </div>
+
+    <!-- 3D Role Badge -->
+    <div id="userPermissionNotice" class="card-3d rounded-2xl p-2.5 flex items-center justify-between text-xs shadow-sm">
+      <span class="opacity-75 font-medium" data-i18n="yourPerm">आपकी अनुमति:</span>
+      <span id="userPermBadge" class="font-extrabold px-3 py-1 rounded-full text-[11px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-500/30 pill-amount-3d">
+        लोड हो रहा है...
+      </span>
+    </div>
+
+    <!-- Segmented Navigation Tabs (Clean 3 Tabs) -->
+    <div class="card-3d p-1.5 rounded-2xl shadow-md flex text-center font-bold text-xs gap-1">
+      <button onclick="switchTab('chanda')" id="tabBtnChanda" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md transition cursor-pointer">ग्रामीण एवं अन्य</button>
+      <button onclick="switchTab('sahyog')" id="tabBtnSahyog" class="flex-1 py-2 rounded-xl opacity-70 hover:opacity-100 transition cursor-pointer">सदस्य एवं विशेष</button>
+      <button onclick="switchTab('kharch')" id="tabBtnKharch" class="flex-1 py-2 rounded-xl opacity-70 hover:opacity-100 transition cursor-pointer">खर्च</button>
+    </div>
+
+    <!-- TAB 1: ग्रामीण चंदा संग्रह -->
+    <section id="paneChanda" class="space-y-3.5">
+      <div class="card-3d rounded-3xl p-4 shadow-xl space-y-3">
+        <h2 class="font-black text-sm text-amber-600 dark:text-amber-300 border-b border-gray-200 dark:border-gray-800 pb-2" data-i18n="titleGramin">ग्रामीण चंदा संग्रह</h2>
+        <form onsubmit="handleFormSubmit(event, 'gramin')" class="space-y-3 text-xs">
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="date">Date *</label>
+            <input type="date" id="chandaDate" required class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+          <!-- Gramin / Other Category Toggle Buttons -->
+          <div>
+            <label class="block opacity-75 mb-1.5 font-bold">चंदा श्रेणी चुनें *</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btnSubGramin" onclick="selectChandaSubCategory('gramin')" class="py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs shadow-md transition">ग्रामीण</button>
+              <button type="button" id="btnSubOther" onclick="selectChandaSubCategory('other')" class="py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition">अन्य (बाहरी/दुकान)</button>
+            </div>
+            <input type="hidden" id="chandaSubCategoryValue" value="gramin" />
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1">Donor Name (English) *</label>
+            <input type="text" id="chandaName" oninput="autoTransliterateHindi(this.value, 'chandaNameHindi')" required placeholder="Name in English" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+            <input type="text" id="chandaNameHindi" placeholder="हिंदी नाम (Auto Transliterated)" class="input-3d w-full rounded-xl p-2 mt-1.5 text-xs outline-none opacity-90" />
+          </div>
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="amount">Amount (₹) *</label>
+            <input type="number" id="chandaAmount" oninput="updateChandaQR()" required placeholder="राशि" class="input-3d w-full rounded-xl p-2.5 text-amber-600 dark:text-amber-300 outline-none text-base font-black" />
+          </div>
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="paymentMode">Payment Mode *</label>
+            <div class="flex items-center space-x-4 pt-1">
+              <label class="flex items-center gap-1.5 cursor-pointer opacity-90">
+                <input type="radio" name="chandaMode" value="Cash" checked onchange="toggleQRVisibility('chanda')" class="text-amber-500 focus:ring-0" />
+                <span>Cash</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer opacity-90">
+                <input type="radio" name="chandaMode" value="Online" onchange="toggleQRVisibility('chanda')" class="text-amber-500 focus:ring-0" />
+                <span>Online (QR Code)</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1"><span data-i18n="remark">विवरण / Remark</span> <span class="opacity-50 font-normal" data-i18n="optional">(वैकल्पिक / Optional)</span></label>
+            <input type="text" id="chandaRemark" placeholder="विवरण (वैकल्पिक)" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+
+          <div id="chandaQRContainer" class="hidden bg-amber-50 dark:bg-gray-900 border border-amber-500/30 p-3 rounded-2xl text-center space-y-2 card-3d">
+            <p class="font-bold text-[11px] text-amber-600 dark:text-amber-400" data-i18n="scanPay">स्कैन करके ऑनलाइन भुगतान करें (Live UPI QR)</p>
+            <div class="w-36 h-36 mx-auto bg-white p-2 rounded-2xl shadow-lg flex items-center justify-center">
+              <img id="chandaQRImage" src="" class="w-full h-full object-contain" alt="UPI QR" />
+            </div>
+            <p id="chandaQRText" class="text-[11px] opacity-75 font-mono"></p>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-black py-2.5 rounded-xl transition cursor-pointer btn-3d" data-i18n="saveSecurely">
+            सुरक्षित जमा करे
+          </button>
+        </form>
+      </div>
+
+      <!-- 3D CARDS: ग्रामीण चंदा कार्ड -->
+      <div id="graminCardSection" class="card-3d rounded-3xl p-4 shadow-xl space-y-2.5">
+        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+          <span class="text-xs font-black opacity-90" id="graminCardTitleText">📜 ग्रामीण चंदा कार्ड (Collection Feed)</span>
+          <span id="badgeTodayGramin" class="text-xs font-black text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-500/30 pill-amount-3d">₹0 (0 दानदाता)</span>
+        </div>
+        <div id="userTodayGraminList" class="space-y-2 max-h-60 overflow-y-auto text-xs pr-1">
+          <p class="opacity-50 text-center py-2" data-i18n="noGramin">कोई ग्रामीण चंदा नहीं लिया गया है</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: विशेष सहयोग -->
+    <section id="paneSahyog" class="space-y-3.5 hidden">
+      <div class="card-3d rounded-3xl p-4 shadow-xl space-y-3">
+        <h2 class="font-black text-sm text-blue-600 dark:text-blue-300 border-b border-gray-200 dark:border-gray-800 pb-2" data-i18n="titleVishesh">विशेष सहयोग</h2>
+        <form onsubmit="handleFormSubmit(event, 'vishesh')" class="space-y-3 text-xs">
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="date">Date *</label>
+            <input type="date" id="sahyogDate" required class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+          <!-- Member / Vishesh Category Toggle Buttons -->
+          <div>
+            <label class="block opacity-75 mb-1.5 font-bold">सहयोग श्रेणी चुनें *</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btnSubSadasya" onclick="selectSahyogSubCategory('sadasya')" class="py-2 rounded-xl bg-blue-600 text-white font-black text-xs shadow-md transition">सदस्य अंशदान</button>
+              <button type="button" id="btnSubVishesh" onclick="selectSahyogSubCategory('vishesh')" class="py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition">विशेष सहयोग</button>
+            </div>
+            <input type="hidden" id="sahyogSubCategoryValue" value="sadasya" />
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1">Donor Name (English) *</label>
+            <input type="text" id="sahyogName" oninput="autoTransliterateHindi(this.value, 'sahyogNameHindi')" required placeholder="Name in English" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+            <input type="text" id="sahyogNameHindi" placeholder="हिंदी नाम (Auto Transliterated)" class="input-3d w-full rounded-xl p-2 mt-1.5 text-xs outline-none opacity-90" />
+          </div>
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="amount">Amount (₹) *</label>
+            <input type="number" id="sahyogAmount" oninput="updateSahyogQR()" required placeholder="राशि" class="input-3d w-full rounded-xl p-2.5 text-blue-600 dark:text-blue-300 outline-none text-base font-black" />
+          </div>
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="paymentMode">Payment Mode *</label>
+            <div class="flex items-center space-x-4 pt-1">
+              <label class="flex items-center gap-1.5 cursor-pointer opacity-90">
+                <input type="radio" name="sahyogMode" value="Cash" checked onchange="toggleQRVisibility('sahyog')" class="text-amber-500 focus:ring-0" />
+                <span>Cash</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer opacity-90">
+                <input type="radio" name="sahyogMode" value="Online" onchange="toggleQRVisibility('sahyog')" class="text-amber-500 focus:ring-0" />
+                <span>Online (QR Code)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="sahyogQRContainer" class="hidden bg-blue-50 dark:bg-gray-900 border border-blue-500/30 p-3 rounded-2xl text-center space-y-2 card-3d">
+            <p class="font-bold text-[11px] text-blue-600 dark:text-blue-400" data-i18n="scanPay">स्कैन करके विशेष सहयोग का भुगतान करें (Live UPI QR)</p>
+            <div class="w-36 h-36 mx-auto bg-white p-2 rounded-2xl shadow-lg flex items-center justify-center">
+              <img id="sahyogQRImage" src="" class="w-full h-full object-contain" alt="UPI QR" />
+            </div>
+            <p id="sahyogQRText" class="text-[11px] opacity-75 font-mono"></p>
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="remark">Remark *</label>
+            <input type="text" id="sahyogRemark" placeholder="विवरण" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-2.5 rounded-xl transition cursor-pointer btn-3d" data-i18n="saveSecurely">
+            सुरक्षित जमा करे
+          </button>
+        </form>
+      </div>
+
+      <!-- 3D CARDS: विशेष सहयोग कार्ड -->
+      <div id="visheshCardSection" class="card-3d rounded-3xl p-4 shadow-xl space-y-2.5">
+        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+          <span class="text-xs font-black opacity-90" id="visheshCardTitleText">👥 सदस्य अंशदान कार्ड (Collection Feed)</span>
+          <span id="badgeTodaySahyog" class="text-xs font-black text-blue-700 bg-blue-100 dark:text-blue-400 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-500/30 pill-amount-3d">₹0 (0 दानदाता)</span>
+        </div>
+        <div id="userTodaySahyogList" class="space-y-2 max-h-60 overflow-y-auto text-xs pr-1">
+          <p class="opacity-50 text-center py-2" data-i18n="noVishesh">कोई विशेष सहयोग नहीं लिया गया है</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: खर्च विवरण -->
+    <section id="paneKharch" class="space-y-3.5 hidden">
+      <div class="card-3d rounded-3xl p-4 shadow-xl space-y-3">
+        <h2 class="font-black text-sm text-red-600 dark:text-red-400 border-b border-gray-200 dark:border-gray-800 pb-2" data-i18n="titleExpense">खर्च विवरण (Expenses)</h2>
+        <form onsubmit="handleFormSubmit(event, 'expense')" class="space-y-3 text-xs">
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="date">Date *</label>
+            <input type="date" id="kharchDate" required class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+
+          <!-- Expense Category Dropdown -->
+          <div>
+            <label class="block opacity-75 mb-1">खर्च श्रेणी चुनें (Expense Category) *</label>
+            <select id="kharchCategory" required class="input-3d w-full rounded-xl p-2.5 outline-none font-bold text-xs">
+              <option value="">-- श्रेणी चुनें --</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="expenseDesc">कहाँ हुआ खर्च... *</label>
+            <textarea id="kharchRemark" required rows="2" placeholder="कहाँ हुआ खर्च..." class="input-3d w-full rounded-xl p-2.5 outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block opacity-75 mb-1" data-i18n="amount">Amount (₹) *</label>
+            <input type="number" id="kharchAmount" required placeholder="राशि" class="input-3d w-full rounded-xl p-2.5 text-red-600 dark:text-red-400 outline-none text-base font-black" />
+          </div>
+
+          <div>
+            <label class="block opacity-75 mb-1"><span data-i18n="billPhoto">बिल / रसीद फोटो</span> <span class="opacity-50 font-normal" data-i18n="driveSave">(वैकल्पिक / Drive में सेव होगी)</span></label>
+            <input type="file" id="kharchBillFile" accept="image/*,application/pdf" class="input-3d w-full rounded-xl p-2 outline-none text-xs" />
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-rose-700 text-white font-black py-2.5 rounded-xl transition cursor-pointer btn-3d" data-i18n="saveExpense">
+            खर्च दर्ज करे
+          </button>
+        </form>
+      </div>
+
+      <!-- 3D CARDS: खर्च कार्ड -->
+      <div id="expenseCardBlock" class="card-3d rounded-3xl p-4 shadow-xl space-y-2.5">
+        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+          <span class="text-xs font-black opacity-90" data-i18n="cardExpenseTitle">🧾 मेरे द्वारा आज का खर्च कार्ड</span>
+          <span id="badgeTodayKharch" class="text-xs font-black text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950/60 px-2.5 py-0.5 rounded-full border border-red-500/30 pill-amount-3d">₹0 (0 खर्च)</span>
+        </div>
+        <div id="userTodayKharchList" class="space-y-2 max-h-60 overflow-y-auto text-xs pr-1">
+          <p class="opacity-50 text-center py-2" data-i18n="noExpense">कोई खर्च दर्ज नहीं किया गया है</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Admin Panel -->
+    <section id="paneAdmin" class="space-y-3.5 hidden">
+      <div id="adminLoginForm" class="card-3d rounded-3xl p-5 shadow-2xl space-y-4">
+        <h2 class="font-black text-sm text-center text-amber-600 dark:text-amber-300" data-i18n="adminLoginTitle">व्यवस्थापक लॉगिन</h2>
+        <form onsubmit="submitAdminLogin(event)" class="space-y-3 text-xs">
+          <div>
+            <input type="text" id="adminUser" required placeholder="admin" value="admin" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+          <div>
+            <input type="password" id="adminPass" required placeholder="पासवर्ड दर्ज करें" class="input-3d w-full rounded-xl p-2.5 outline-none" />
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-rose-700 text-white font-black py-2.5 rounded-xl cursor-pointer btn-3d" data-i18n="enterAdmin">
+            प्रवेश करें 🚪
+          </button>
+        </form>
+      </div>
+
+      <div id="adminPanel" class="hidden space-y-3.5">
+        <div class="card-3d rounded-3xl p-4 shadow-xl space-y-3.5">
+          <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+            <h2 class="font-black text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <span>📊</span> <span data-i18n="masterAdminPanel">मास्टर एडमिन पैनल</span>
+            </h2>
+            <div class="flex items-center gap-2">
+              <button onclick="loadData()" class="text-xs text-blue-500 border border-blue-500/40 px-2.5 py-0.5 rounded-lg flex items-center gap-1 cursor-pointer font-bold" data-i18n="refresh">रिफ्रेश 🔄</button>
+              <button onclick="logoutAdmin()" class="text-xs text-red-500 bg-red-500/10 border border-red-500/40 px-3 py-0.5 rounded-lg cursor-pointer font-bold">Logout</button>
+            </div>
+          </div>
+
+          <!-- PENDING APPROVALS -->
+          <div class="card-3d rounded-2xl p-3 space-y-2.5 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="font-black text-amber-600 dark:text-amber-300 flex items-center gap-1" data-i18n="pendingApprovalsCard">
+                ⏳ नए कार्यकर्ता अनुमोदन (Pending Approvals)
+              </span>
+              <button onclick="loadData()" class="text-[10px] font-bold text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full cursor-pointer" data-i18n="refresh">रिफ्रेश 🔄</button>
+            </div>
+            <div id="adminPendingMembersList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <p class="opacity-50 text-center py-2 text-[11px]" data-i18n="loading">लोड हो रहा है...</p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl flex items-center justify-center gap-1 shadow-md cursor-pointer btn-3d" data-i18n="downloadCsv">Excel / CSV 📥</button>
+            <button onclick="downloadA4PDF()" id="btnPdfDownload" class="bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl flex items-center justify-center gap-1 shadow-md cursor-pointer btn-3d" data-i18n="downloadPdf">A4 PDF डाउनलोड 📄</button>
+          </div>
+
+          <!-- Search in Festival -->
+          <div class="border border-gray-200 dark:border-gray-800 rounded-2xl p-3 space-y-1 text-xs">
+            <label class="font-bold opacity-80 flex items-center gap-1" data-i18n="searchInFest">🔍 इस त्यौहार में चन्दा खोजें</label>
+            <input type="text" id="festSearchInput" oninput="filterAdminCardView(this.value)" placeholder="नाम से चन्दा खोजें..." class="input-3d w-full rounded-xl p-2 outline-none text-xs" />
+          </div>
+
+          <!-- UPI Update -->
+          <div class="border border-gray-200 dark:border-gray-800 rounded-2xl p-3 space-y-1.5 text-xs">
+            <label class="font-bold opacity-80 flex items-center gap-1" data-i18n="updateUpi">💳 समिति UPI ID अपडेट करें (Live QR)</label>
+            <div class="flex gap-2">
+              <input type="text" id="adminUPIInput" class="input-3d w-full rounded-xl p-2 text-amber-600 dark:text-amber-300 outline-none font-mono text-xs" />
+              <button onclick="saveUPI()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-4 rounded-xl flex items-center gap-1 cursor-pointer btn-3d">Save 💾</button>
+            </div>
+          </div>
+
+          <!-- Lifetime History -->
+          <div class="border border-indigo-200 dark:border-indigo-950/60 rounded-2xl p-3 space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="font-black text-indigo-700 dark:text-indigo-300 flex items-center gap-1" data-i18n="lifetimeHistory">👤 दानदाता का सम्पूर्ण इतिहास</span>
+              <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-md text-[10px]" data-i18n="allFestivals">सभी त्यौहार</span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="lifetimeSearchInput" placeholder="दानदाता का नाम लिखें..." class="input-3d w-full rounded-xl p-2 outline-none text-xs" />
+              <button onclick="searchLifetimeHistory()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-4 rounded-xl flex items-center gap-1 cursor-pointer btn-3d" data-i18n="searchBtn">खोजें 🔍</button>
+            </div>
+            <div id="lifetimeResults" class="space-y-1 max-h-36 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- 3D STATS CARDS -->
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 p-2.5 rounded-2xl card-3d">
+              <p class="text-[10px] opacity-75 font-bold" data-i18n="totalCredit">कुल जमा</p>
+              <p id="admTotalCredit" class="font-black text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">₹0</p>
+            </div>
+            <div class="bg-red-50 dark:bg-red-950/40 border border-red-500/30 p-2.5 rounded-2xl card-3d">
+              <p class="text-[10px] opacity-75 font-bold" data-i18n="totalDebit">कुल खर्च</p>
+              <p id="admTotalDebit" class="font-black text-red-600 dark:text-red-400 text-sm mt-0.5">₹0</p>
+            </div>
+            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-500/30 p-2.5 rounded-2xl card-3d">
+              <p class="text-[10px] opacity-75 font-bold" data-i18n="netBalance">शेष बैलेंस</p>
+              <p id="admNetBal" class="font-black text-amber-600 dark:text-amber-300 text-sm mt-0.5">₹0</p>
+            </div>
+          </div>
+
+          <!-- Transaction Card Feed With Live Count & Total Badge -->
+          <div class="space-y-2 pt-1">
+            <div class="flex justify-between items-center gap-2">
+              <span id="adminLiveCardBadge" class="text-[11px] font-black px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 pill-amount-3d">
+                ₹0 (0 एंट्री)
+              </span>
+              <select id="adminCardViewSelect" onchange="renderAdminCardList()" class="input-3d rounded-xl p-1.5 text-xs font-bold text-amber-600 dark:text-amber-300 outline-none">
+                <option value="gramin">ग्रामीण चन्दा कार्ड</option>
+                <option value="other">अन्य चन्दा कार्ड</option>
+                <option value="sadasya">सदस्य अंशदान कार्ड</option>
+                <option value="vishesh">विशेष सहयोग कार्ड</option>
+                <option value="expense">खर्च कार्ड</option>
+              </select>
+            </div>
+            <div id="adminCardsContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Festival Status -->
+          <div class="border-t border-gray-200 dark:border-gray-800 pt-3 space-y-3 text-xs">
+            <div class="flex justify-between items-center">
+              <h3 class="font-black opacity-90 flex items-center gap-1" data-i18n="festStatusTitle">⚙️ त्यौहार स्थिति प्रबंधन</h3>
+              <button onclick="loadData()" class="text-amber-600 dark:text-amber-400 font-bold cursor-pointer" data-i18n="refresh">रिफ्रेश 🔄</button>
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1" data-i18n="openFestivals">🟢 चालू त्यौहार (Active / OPEN)</span>
+              <div id="adminActiveFestList" class="space-y-1.5"></div>
+            </div>
+            <div class="space-y-1.5 pt-1">
+              <span class="text-[11px] font-bold text-red-600 dark:text-red-400 flex items-center gap-1" data-i18n="closedFestivals">🔴 बंद त्यौहार (Inactive / CLOSED)</span>
+              <div id="adminInactiveFestList" class="space-y-1.5"></div>
+            </div>
+          </div>
+
+          <!-- Add Festival -->
+          <div class="border-t border-gray-200 dark:border-gray-800 pt-3 space-y-2 text-xs">
+            <h3 class="font-black text-amber-600 dark:text-amber-400 flex items-center gap-1" data-i18n="addNewFestTitle">➕ नया त्यौहार जोड़ें (Multi-Festival)</h3>
+            <form onsubmit="handleAddNewFestival(event)" class="space-y-2 card-3d p-2.5 rounded-2xl">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="newFestId" required placeholder="Festival ID (e.g. Durga_2026)" class="input-3d rounded-xl p-2 outline-none text-[11px]" />
+                <input type="text" id="newFestTitle" required placeholder="टाइटल (e.g. दुर्गा पूजा 2026)" class="input-3d rounded-xl p-2 outline-none text-[11px]" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="newFestUPI" placeholder="UPI ID" value="mohitkumarpatel06@okaxis" class="input-3d rounded-xl p-2 outline-none text-[11px]" />
+                <input type="password" id="newFestPass" placeholder="Admin Password" value="admin123" class="input-3d rounded-xl p-2 outline-none text-[11px]" />
+              </div>
+              <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black py-2 rounded-xl cursor-pointer btn-3d" data-i18n="createFestBtn">त्यौहार जोड़ें & अलग फ़ाइल बनाएं 🚀</button>
+            </form>
+          </div>
+
+          <!-- Approved Volunteers Directory -->
+          <div class="border-t border-gray-200 dark:border-gray-800 pt-3 space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <h3 class="font-black opacity-90" data-i18n="approvedVolunteersTitle">👥 स्वीकृत कार्यकर्ता सूची</h3>
+              <button onclick="loadData()" class="text-amber-600 dark:text-amber-400 font-bold cursor-pointer" data-i18n="refresh">रिफ्रेश 🔄</button>
+            </div>
+            <div id="adminApprovedMembersContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <p class="opacity-50 text-center py-2 text-xs" data-i18n="loading">लोड हो रहा है...</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FIXED BOTTOM NAVIGATION (Only 3 Tabs) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-[#F7F3EE]/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-t border-gray-300 dark:border-gray-800 py-2 z-40 max-w-md mx-auto shadow-2xl">
+    <div class="flex justify-around items-center text-center text-[10px] font-black">
+      <button onclick="switchTab('chanda')" id="botNavGramin" class="flex flex-col items-center gap-1 text-amber-600 dark:text-amber-400 transition flex-1 cursor-pointer">
+        <span class="text-base">💰</span>
+        <span>ग्रामीण/अन्य</span>
+      </button>
+
+      <button onclick="switchTab('sahyog')" id="botNavVishesh" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition flex-1 cursor-pointer">
+        <span class="text-base">🤝</span>
+        <span>सदस्य/विशेष</span>
+      </button>
+
+      <button onclick="switchTab('kharch')" id="botNavExpense" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition flex-1 cursor-pointer">
+        <span class="text-base">🧾</span>
+        <span>खर्च</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- USER PROFILE MODAL -->
+  <div id="userProfileModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="card-3d rounded-3xl p-5 w-full max-w-xs shadow-2xl text-center space-y-3">
+      <h3 class="font-black text-sm text-amber-600 dark:text-amber-300" data-i18n="myProfile">मेरी प्रोफाइल</h3>
+      <div class="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-amber-400 shadow-lg">
+        <img id="profileModalImg" src="https://api.dicebear.com/7.x/bottts/svg?seed=user" class="w-full h-full object-cover bg-white" alt="Profile" />
+      </div>
+      <div>
+        <p id="profileModalName" class="font-black text-sm"></p>
+        <p id="profileModalPhone" class="text-xs opacity-75"></p>
+        <p id="profileModalFest" class="text-[11px] text-amber-600 dark:text-amber-400 font-bold mt-1"></p>
+        <p id="profileModalPerm" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-black mt-0.5"></p>
+      </div>
+      <div class="pt-2">
+        <button type="button" onclick="closeProfileModal()" class="w-full bg-gray-500/10 opacity-80 hover:opacity-100 py-2 rounded-xl font-bold text-xs cursor-pointer" data-i18n="close">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // APNA DEPLOYED APPS SCRIPT URL YAHAN DALEIN
+    // ==========================================
+    const API_URL = "https://script.google.com/macros/s/AKfycby6pCv1C0JCTD7fSbu45wsf2HTApyik3uUgyNZ-j6zolkccwOJBeYQ7wUXLeMuYscAN/exec";
+
+    let state = {
+  lang: "hi",
+  theme: "light",
+  activeFestival: localStorage.getItem("m_active_fest") || "",
+  currentTab: "chanda",
+  isAdmin: false,
+  currentUser: null,
+  expenseCategories: [], // <--- Yeh line jud gayi
+  data: { gramin: [], other: [], sadasya: [], vishesh: [], expenses: [], registry: {}, festivals: [], members: [] }
+};
+
+    let videoStream = null;
+    let capturedPhotoData = "";
+
+    function toggleTheme() {
+      state.theme = (state.theme === "light") ? "dark" : "light";
+      document.documentElement.className = state.theme;
+      localStorage.setItem("m_theme", state.theme);
+      document.getElementById("themeIcon").innerText = (state.theme === "light") ? "🌙" : "☀️";
+    }
+
+    function triggerNotificationWithSoundAndVibration(title, body) {
+      if ("vibrate" in navigator) {
+        navigator.vibrate([300, 150, 300, 150, 400]);
+      }
+
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.45);
+      } catch (e) {}
+
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          new Notification(title, { body: body, icon: "https://api.dicebear.com/7.x/bottts/svg?seed=samiti" });
+        } else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              new Notification(title, { body: body, icon: "https://api.dicebear.com/7.x/bottts/svg?seed=samiti" });
+            }
+          });
+        }
+      }
+    }
+
+    const translations = {
+      hi: {
+        adminLogin: "व्यवस्थापक लॉगिन (Admin)",
+        welcome: "स्वागतम् 🙏",
+        welcomeSub: "मातरोडीह उत्सव समिति ऐप में आपका स्वागत है",
+        fillDetails: "आगे बढ़ने के लिए कृपया अपना विवरण दर्ज करें",
+        selfiePhoto: "सेल्फी फोटो",
+        optional: "(वैकल्पिक / Optional)",
+        openCam: "कैमरा खोलें 📸",
+        takePhoto: "फोटो खींचें 🤳",
+        retakePhoto: "दोबारा लें 🔄",
+        lblFullName: "पूरा नाम (Full Name) *",
+        lblMobile: "मोबाइल नंबर (Mobile Number) *",
+        lblSelectActiveFest: "सक्रिय त्यौहार चुनें (Select Active Festival) *",
+        submitReg: "पंजीकरण भेजें",
+        approvalPending: "अनुमोदन लंबित (Approval Pending)",
+        hello: "नमस्ते",
+        regReceived: "जी, आपका पंजीकरण अनुरोध प्राप्त हो चुका है।",
+        adminPermRequired: "व्यवस्थापक अनुमति आवश्यक है:",
+        adminLockDesc: "जब तक समिति व्यवस्थापक (Admin) आपके खाते को स्वीकृत (Approve) नहीं करते, तब तक ऐप की सामग्री लॉक रहेगी। कृपया Admin से संपर्क करें।",
+        checkStatus: "स्थिति जांचें (Check Status)",
+        subTitle: "मातरोडीह | Live लेखा प्रणाली",
+        selectFest: "उत्सव:",
+        yourPerm: "आपकी अनुमति:",
+        tabGramin: "ग्रामीण",
+        tabVishesh: "विशेष",
+        tabExpense: "खर्च",
+        tabAdmin: "व्यवस्थापक",
+        titleGramin: "ग्रामीण चंदा संग्रह",
+        titleVishesh: "विशेष सहयोग",
+        titleExpense: "खर्च विवरण (Expenses)",
+        date: "Date *",
+        donorName: "Donor Name *",
+        amount: "Amount (₹) *",
+        paymentMode: "Payment Mode *",
+        remark: "विवरण / Remark",
+        scanPay: "स्कैन करके ऑनलाइन भुगतान करें (Live UPI QR)",
+        saveSecurely: "सुरक्षित जमा करे",
+        cardGraminTitle: "📜 ग्रामीण चंदा कार्ड (Collection Feed)",
+        noGramin: "कोई ग्रामीण चंदा नहीं लिया गया है",
+        cardVisheshTitle: "🤝 विशेष सहयोग कार्ड (Collection Feed)",
+        noVishesh: "कोई विशेष सहयोग नहीं लिया गया है",
+        expenseDesc: "कहाँ हुआ खर्च... *",
+        billPhoto: "बिल / रसीद फोटो",
+        driveSave: "(वैकल्पिक / Drive में सेव होगी)",
+        saveExpense: "खर्च दर्ज करे",
+        cardExpenseTitle: "🧾 मेरे द्वारा आज का खर्च कार्ड",
+        noExpense: "कोई खर्च दर्ज नहीं किया गया है",
+        adminLoginTitle: "व्यवस्थापक लॉगिन",
+        enterAdmin: "प्रवेश करें 🚪",
+        masterAdminPanel: "मास्टर एडमिन पैनल",
+        refresh: "रिफ्रेश 🔄",
+        pendingApprovalsCard: "⏳ नए कार्यकर्ता अनुमोदन (Pending Approvals)",
+        loading: "लोड हो रहा है...",
+        downloadCsv: "Excel / CSV 📥",
+        downloadPdf: "A4 PDF डाउनलोड 📄",
+        searchInFest: "🔍 इस त्यौहार में चन्दा खोजें",
+        updateUpi: "💳 समिति UPI ID अपडेट करें (Live QR)",
+        lifetimeHistory: "👤 दानदाता का सम्पूर्ण इतिहास",
+        allFestivals: "सभी त्यौहार",
+        searchBtn: "खोजें 🔍",
+        totalCredit: "कुल जमा",
+        totalDebit: "कुल खर्च",
+        netBalance: "शेष बैलेंस",
+        txnCardDetails: "📜 लेन-देन कार्ड विवरण",
+        festStatusTitle: "⚙️ त्यौहार स्थिति प्रबंधन",
+        openFestivals: "🟢 चालू त्यौहार (Active / OPEN)",
+        closedFestivals: "🔴 बंद त्यौहार (Inactive / CLOSED)",
+        addNewFestTitle: "➕ नया त्यौहार जोड़ें (Multi-Festival)",
+        createFestBtn: "त्यौहार जोड़ें & अलग फ़ाइल बनाएं 🚀",
+        approvedVolunteersTitle: "👥 स्वीकृत कार्यकर्ता सूची",
+        myProfile: "मेरी प्रोफाइल",
+        close: "बंद करें"
+      },
+      en: {
+        adminLogin: "Admin Login 🔐",
+        welcome: "Welcome 🙏",
+        welcomeSub: "Welcome to Matrodih Utsav Samiti App",
+        fillDetails: "Please fill your details to proceed",
+        selfiePhoto: "Selfie Photo",
+        optional: "(Optional)",
+        openCam: "Open Camera 📸",
+        takePhoto: "Take Photo 🤳",
+        retakePhoto: "Retake 🔄",
+        lblFullName: "Full Name *",
+        lblMobile: "Mobile Number *",
+        lblSelectActiveFest: "Select Active Festival *",
+        submitReg: "Submit Registration",
+        approvalPending: "Approval Pending ⏳",
+        hello: "Hello",
+        regReceived: ", your registration request has been received.",
+        adminPermRequired: "Admin Approval Required:",
+        adminLockDesc: "Your access will remain locked until the Admin approves your account. Please contact the Admin.",
+        checkStatus: "Check Status",
+        subTitle: "Matrodih | Live Accounting System",
+        selectFest: "Festival:",
+        yourPerm: "Your Role:",
+        tabGramin: "Rural",
+        tabVishesh: "Special",
+        tabExpense: "Expenses",
+        tabAdmin: "Admin",
+        titleGramin: "Rural Chanda Collection",
+        titleVishesh: "Special Support (Sahyog)",
+        titleExpense: "Expense Records",
+        date: "Date *",
+        donorName: "Donor Name *",
+        amount: "Amount (₹) *",
+        paymentMode: "Payment Mode *",
+        remark: "Remark / Description",
+        scanPay: "Scan to Pay Online (Live UPI QR)",
+        saveSecurely: "Save Securely",
+        cardGraminTitle: "📜 Rural Chanda Feed",
+        noGramin: "No rural collection recorded today",
+        cardVisheshTitle: "🤝 Special Support Feed",
+        noVishesh: "No special support recorded today",
+        expenseDesc: "Expense Description... *",
+        billPhoto: "Bill / Receipt Photo",
+        driveSave: "(Optional / Saves to Drive)",
+        saveExpense: "Record Expense",
+        cardExpenseTitle: "🧾 My Expenses Today",
+        noExpense: "No expense recorded today",
+        adminLoginTitle: "Admin Login",
+        enterAdmin: "Enter Dashboard 🚪",
+        masterAdminPanel: "Master Admin Panel",
+        refresh: "Refresh 🔄",
+        pendingApprovalsCard: "⏳ Pending Volunteer Approvals",
+        loading: "Loading...",
+        downloadCsv: "Excel / CSV 📥",
+        downloadPdf: "Download A4 PDF 📄",
+        searchInFest: "🔍 Search Chanda in Festival",
+        updateUpi: "💳 Update UPI ID (Live QR)",
+        lifetimeHistory: "👤 Lifetime Donor History",
+        allFestivals: "All Festivals",
+        searchBtn: "Search 🔍",
+        totalCredit: "Total Income",
+        totalDebit: "Total Expense",
+        netBalance: "Net Balance",
+        txnCardDetails: "📜 Transaction Cards",
+        festStatusTitle: "⚙️ Festival Status",
+        openFestivals: "🟢 Active Festivals (OPEN)",
+        closedFestivals: "🔴 Closed Festivals (CLOSED)",
+        addNewFestTitle: "➕ Add New Festival",
+        createFestBtn: "Create Festival & Separate File 🚀",
+        approvedVolunteersTitle: "👥 Approved Volunteers Directory",
+        myProfile: "My Profile",
+        close: "Close"
+      }
+    };
+
+    function applyLanguage(lang) {
+      state.lang = lang;
+      localStorage.setItem("m_lang", lang);
+      document.getElementById("langTxt").innerText = (lang === "hi") ? "EN" : "HI";
+
+      const dict = translations[lang] || translations.hi;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) {
+          el.innerText = dict[key];
+        }
+      });
+
+      const nameInp = document.getElementById("regNameInput");
+      const phoneInp = document.getElementById("regPhoneInput");
+      const cName = document.getElementById("chandaName");
+      const sName = document.getElementById("sahyogName");
+      const cAmt = document.getElementById("chandaAmount");
+      const sAmt = document.getElementById("sahyogAmount");
+      const kAmt = document.getElementById("kharchAmount");
+      const cRem = document.getElementById("chandaRemark");
+      const sRem = document.getElementById("sahyogRemark");
+      const kRem = document.getElementById("kharchRemark");
+
+      if (lang === "en") {
+        if (nameInp) nameInp.placeholder = "Enter your full name";
+        if (phoneInp) phoneInp.placeholder = "10 digit mobile number";
+        if (cName) cName.placeholder = "Enter donor name";
+        if (sName) sName.placeholder = "Enter donor name";
+        if (cAmt) cAmt.placeholder = "Amount";
+        if (sAmt) sAmt.placeholder = "Amount";
+        if (kAmt) kAmt.placeholder = "Amount";
+        if (cRem) cRem.placeholder = "Remark (Optional)";
+        if (sRem) sRem.placeholder = "Description";
+        if (kRem) kRem.placeholder = "Where was it spent?...";
+      } else {
+        if (nameInp) nameInp.placeholder = "अपना नाम दर्ज करें";
+        if (phoneInp) phoneInp.placeholder = "10 अंकों का मोबाइल नंबर";
+        if (cName) cName.placeholder = "नाम दर्ज करें";
+        if (sName) sName.placeholder = "नाम दर्ज करें";
+        if (cAmt) cAmt.placeholder = "राशि";
+        if (sAmt) sAmt.placeholder = "राशि";
+        if (kAmt) kAmt.placeholder = "राशि";
+        if (cRem) cRem.placeholder = "विवरण (वैकल्पिक)";
+        if (sRem) sRem.placeholder = "विवरण";
+        if (kRem) kRem.placeholder = "कहाँ हुआ खर्च...";
+      }
+
+      updateHeaderProfileUI();
+      renderUserDailyCards();
+    }
+
+    function toggleLang() {
+      const nextLang = (state.lang === "hi") ? "en" : "hi";
+      applyLanguage(nextLang);
+    }
+
+    async function startCamera() {
+      try {
+        const video = document.getElementById("selfieVideo");
+        const placeholder = document.getElementById("selfiePlaceholder");
+        const preview = document.getElementById("selfiePreview");
+
+        videoStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user", width: { ideal: 300 }, height: { ideal: 300 } }, 
+          audio: false 
+        });
+
+        video.srcObject = videoStream;
+        video.classList.remove("hidden");
+        placeholder.classList.add("hidden");
+        preview.classList.add("hidden");
+
+        document.getElementById("btnStartCam").classList.add("hidden");
+        document.getElementById("btnCapturePhoto").classList.remove("hidden");
+        document.getElementById("btnRetakePhoto").classList.add("hidden");
+      } catch (err) {
+        alert(state.lang === 'en' ? "Camera permission denied. You can proceed without selfie." : "कैमरा चालू करने की अनुमति नहीं मिली। आप बिना सेल्फी के भी आगे बढ़ सकते हैं।");
+      }
+    }
+
+    function captureSelfie() {
+      const video = document.getElementById("selfieVideo");
+      const canvas = document.getElementById("selfieCanvas");
+      const preview = document.getElementById("selfiePreview");
+
+      canvas.width = video.videoWidth || 250;
+      canvas.height = video.videoHeight || 250;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      capturedPhotoData = canvas.toDataURL("image/jpeg", 0.5);
+      preview.src = capturedPhotoData;
+      preview.classList.remove("hidden");
+      video.classList.add("hidden");
+
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+
+      document.getElementById("btnCapturePhoto").classList.add("hidden");
+      document.getElementById("btnRetakePhoto").classList.remove("hidden");
+    }
+
+    function openAdminFromRegScreen() {
+      document.getElementById("mandatoryRegScreen").classList.add("hidden");
+      document.getElementById("pendingLockScreen").classList.add("hidden");
+      switchTab('admin');
+    }
+
+    async function handleMandatoryRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById("regNameInput").value.trim();
+      const phone = document.getElementById("regPhoneInput").value.trim();
+      const festivalId = document.getElementById("regFestivalInput").value;
+      const btn = document.getElementById("btnCompleteReg");
+
+      if (!festivalId) {
+        alert(state.lang === 'en' ? "No active festival available! Please wait for Admin to add one." : "वर्तमान में कोई सक्रिय त्यौहार उपलब्ध नहीं है! कृपया व्यवस्थापक द्वारा नया त्यौहार जोड़े जाने की प्रतीक्षा करें।");
+        return;
+      }
+
+      btn.innerText = state.lang === 'en' ? "Submitting..." : "पंजीकरण भेजा जा रहा है...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "registerUser",
+            festivalId: festivalId,
+            name: name,
+            phone: phone,
+            photo: capturedPhotoData || ""
+          })
+        });
+        const resp = await res.json();
+        if (resp.status === "success") {
+          state.currentUser = {
+            name: name,
+            phone: phone,
+            photo: capturedPhotoData || `https://api.dicebear.com/7.x/initials/svg?seed=${name}`,
+            status: "PENDING",
+            role: "GRAMIN_ONLY",
+            registeredFestival: festivalId
+          };
+          localStorage.setItem("m_user_registered", JSON.stringify(state.currentUser));
+          
+          triggerNotificationWithSoundAndVibration(
+            "पंजीकरण अनुरोध भेजा गया 🔔",
+            `नमस्ते ${name} जी, आपका अनुरोध व्यवस्थापक को भेज दिया गया है।`
+          );
+
+          document.getElementById("mandatoryRegScreen").classList.add("hidden");
+          showPendingLockScreen();
+        } else {
+          alert("Error: " + resp.message);
+        }
+      } catch (err) {
+        alert("Network Error!");
+      } finally {
+        btn.innerText = state.lang === 'en' ? "Submit Registration ➔" : "पंजीकरण भेजें ➔";
+        btn.disabled = false;
+      }
+    }
+
+    function showPendingLockScreen() {
+      if (!state.currentUser) return;
+      document.getElementById("lockUserName").innerText = state.currentUser.name;
+      document.getElementById("pendingLockScreen").classList.remove("hidden");
+    }
+
+    async function checkLiveApprovalStatus() {
+      if (!state.currentUser) return;
+      const btn = document.getElementById("btnCheckStatus");
+      btn.innerText = state.lang === 'en' ? "Checking..." : "जांच हो रही है...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_URL}?action=getInitialData&festivalId=${state.activeFestival}&userPhone=${state.currentUser.phone}`);
+        const result = await res.json();
+        if (result.status === "success" && result.userAccess) {
+          if (result.userAccess.status === "GUEST") {
+            localStorage.removeItem("m_user_registered");
+            state.currentUser = null;
+            document.getElementById("pendingLockScreen").classList.add("hidden");
+            document.getElementById("mandatoryRegScreen").classList.remove("hidden");
+            alert(state.lang === 'en' ? "Your account was removed by Admin. Please register again." : "आपका खाता व्यवस्थापक द्वारा हटा दिया गया है। कृपया पुनः पंजीकरण करें।");
+            return;
+          }
+
+          if (result.userAccess.status === "APPROVED") {
+            state.currentUser.status = "APPROVED";
+            state.currentUser.role = result.userAccess.role;
+            localStorage.setItem("m_user_registered", JSON.stringify(state.currentUser));
+            document.getElementById("pendingLockScreen").classList.add("hidden");
+
+            triggerNotificationWithSoundAndVibration(
+              "खाता स्वीकृत हो गया! 🎉",
+              "बधाई हो! समिति व्यवस्थापक ने आपका खाता स्वीकृत कर दिया है।"
+            );
+
+            alert(state.lang === 'en' ? "Congratulations! Your account has been approved." : "बधाई हो! आपका खाता स्वीकृत (Approved) हो गया है।");
+            loadData();
+          } else {
+            alert(state.lang === 'en' ? "Your profile is still Pending. Please ask Admin to approve." : "आपकी प्रोफाइल अभी भी 'Pending' है। कृपया Admin से अनुमति देने को कहें।");
+          }
+        }
+      } catch (e) {
+        alert("Status check failed");
+      } finally {
+        btn.innerText = state.lang === 'en' ? "Check Status 🔄" : "स्थिति जांचें (Check Status) 🔄";
+        btn.disabled = false;
+      }
+    }
+
+    function checkMandatoryRegistration() {
+      const saved = localStorage.getItem("m_user_registered");
+      if (saved) {
+        state.currentUser = JSON.parse(saved);
+        updateHeaderProfileUI();
+        
+        if (!state.activeFestival && state.currentUser.registeredFestival) {
+          state.activeFestival = state.currentUser.registeredFestival;
+        }
+
+        if (state.currentUser.status !== "APPROVED") {
+          document.getElementById("mandatoryRegScreen").classList.add("hidden");
+          showPendingLockScreen();
+        } else {
+          document.getElementById("mandatoryRegScreen").classList.add("hidden");
+          document.getElementById("pendingLockScreen").classList.add("hidden");
+        }
+      } else {
+        if (!state.isAdmin) {
+          document.getElementById("mandatoryRegScreen").classList.remove("hidden");
+          document.getElementById("pendingLockScreen").classList.add("hidden");
+        }
+      }
+    }
+
+    function updateHeaderProfileUI() {
+      if (!state.currentUser) return;
+      document.getElementById("userHeaderName").innerText = state.currentUser.name;
+      if (state.currentUser.photo) {
+        document.getElementById("userHeaderAvatar").src = state.currentUser.photo;
+      }
+
+      const badge = document.getElementById("userPermBadge");
+      if (badge) {
+        if (state.currentUser.role === 'ALL_ACCESS') {
+          badge.className = "font-black px-3 py-1 rounded-full text-[11px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-500/30 pill-amount-3d";
+          badge.innerText = state.lang === 'en' ? "⚡ Gramin + Vishesh + Expense (All Access)" : "⚡ ग्रामीण + विशेष + खर्च (All Access)";
+        } else {
+          badge.className = "font-black px-3 py-1 rounded-full text-[11px] bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-500/30 pill-amount-3d";
+          badge.innerText = state.lang === 'en' ? "🟢 Only Gramin Chanda" : "🟢 केवल ग्रामीण (Only Gramin)";
+        }
+      }
+    }
+
+    function openProfileModal() {
+      if (!state.currentUser) return;
+      document.getElementById("profileModalImg").src = state.currentUser.photo || "https://api.dicebear.com/7.x/initials/svg?seed=" + state.currentUser.name;
+      document.getElementById("profileModalName").innerText = state.currentUser.name;
+      document.getElementById("profileModalPhone").innerText = "+91 " + state.currentUser.phone;
+      document.getElementById("profileModalFest").innerText = "🎪 " + (state.currentUser.registeredFestival || "All Festivals");
+      document.getElementById("profileModalPerm").innerText = (state.lang === 'en' ? "Role: " : "अनुमति: ") + (state.currentUser.role === 'ALL_ACCESS' ? (state.lang === 'en' ? 'Gramin + Vishesh + Expense' : 'ग्रामीण + विशेष + खर्च') : (state.lang === 'en' ? 'Only Gramin' : 'केवल ग्रामीण'));
+      document.getElementById("userProfileModal").classList.remove("hidden");
+    }
+
+    function closeProfileModal() {
+      document.getElementById("userProfileModal").classList.add("hidden");
+    }
+
+    function toggleQRVisibility(formType) {
+      const mode = document.querySelector(`input[name="${formType}Mode"]:checked`).value;
+      const container = document.getElementById(`${formType}QRContainer`);
+      if (mode === "Online") {
+        container.classList.remove("hidden");
+        if (formType === "chanda") updateChandaQR();
+        else updateSahyogQR();
+      } else {
+        container.classList.add("hidden");
+      }
+    }
+
+    function updateChandaQR() {
+      const mode = document.querySelector('input[name="chandaMode"]:checked')?.value;
+      if (mode !== "Online") return;
+      const amount = document.getElementById("chandaAmount").value || "0";
+      const upiId = (state.data.registry && state.data.registry.upi) ? state.data.registry.upi : "mohitkumarpatel06@okaxis";
+      const upiUrl = `upi://pay?pa=${upiId}&pn=Matrodih%20Samiti&am=${amount}&cu=INR`;
+      
+      document.getElementById("chandaQRImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUrl)}`;
+      document.getElementById("chandaQRText").innerText = `UPI: ${upiId} | ₹${amount}`;
+    }
+
+    function updateSahyogQR() {
+      const mode = document.querySelector('input[name="sahyogMode"]:checked')?.value;
+      if (mode !== "Online") return;
+      const amount = document.getElementById("sahyogAmount").value || "0";
+      const upiId = (state.data.registry && state.data.registry.upi) ? state.data.registry.upi : "mohitkumarpatel06@okaxis";
+      const upiUrl = `upi://pay?pa=${upiId}&pn=Matrodih%20Samiti&am=${amount}&cu=INR`;
+      
+      document.getElementById("sahyogQRImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUrl)}`;
+      document.getElementById("sahyogQRText").innerText = `UPI: ${upiId} | ₹${amount}`;
+    }
+// Toggle Sub-Categories for Tab 1
+    function selectChandaSubCategory(cat) {
+      document.getElementById('chandaSubCategoryValue').value = cat;
+      const bG = document.getElementById('btnSubGramin');
+      const bO = document.getElementById('btnSubOther');
+      const hdr = document.getElementById('graminCardTitleText');
+
+      if (cat === 'gramin') {
+        bG.className = 'py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs shadow-md transition';
+        bO.className = 'py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition';
+        if (hdr) hdr.innerText = "📜 ग्रामीण चंदा कार्ड (Collection Feed)";
+      } else {
+        bO.className = 'py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs shadow-md transition';
+        bG.className = 'py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition';
+        if (hdr) hdr.innerText = "🏪 अन्य चंदा कार्ड (Collection Feed)";
+      }
+      renderUserDailyCards();
+    }
+
+    // Toggle Sub-Categories for Tab 2
+    function selectSahyogSubCategory(cat) {
+      document.getElementById('sahyogSubCategoryValue').value = cat;
+      const bM = document.getElementById('btnSubSadasya');
+      const bV = document.getElementById('btnSubVishesh');
+      const hdr = document.getElementById('visheshCardTitleText');
+
+      if (cat === 'sadasya') {
+        bM.className = 'py-2 rounded-xl bg-blue-600 text-white font-black text-xs shadow-md transition';
+        bV.className = 'py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition';
+        if (hdr) hdr.innerText = "👥 सदस्य अंशदान कार्ड (Collection Feed)";
+      } else {
+        bV.className = 'py-2 rounded-xl bg-blue-600 text-white font-black text-xs shadow-md transition';
+        bM.className = 'py-2 rounded-xl bg-gray-500/10 opacity-70 font-bold text-xs transition';
+        if (hdr) hdr.innerText = "🤝 विशेष सहयोग कार्ड (Collection Feed)";
+      }
+      renderUserDailyCards();
+    }
+
+    // Auto English to Hindi Phonetic Transliteration
+    async function autoTransliterateHindi(text, targetInputId) {
+      if (!text || text.trim() === '') {
+        document.getElementById(targetInputId).value = '';
+        return;
+      }
+      try {
+        const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(text.trim())}&itc=hi-t-i0-und&num=1`);
+        const json = await res.json();
+        if (json[0] === 'SUCCESS' && json[1][0][1][0]) {
+          document.getElementById(targetInputId).value = json[1][0][1][0];
+        }
+      } catch (e) {}
+    }
+// Purane English naam ko live Hindi me convert karke dikhane ke liye cache helper
+    const hindiNameCache = {};
+    async function convertOldNameToHindi(name, elId) {
+      if (!name) return;
+      if (/[\u0900-\u097F]/.test(name)) {
+        const el = document.getElementById(elId);
+        if (el) el.innerText = name;
+        return;
+      }
+      if (hindiNameCache[name]) {
+        const el = document.getElementById(elId);
+        if (el) el.innerText = `${name} (${hindiNameCache[name]})`;
+        return;
+      }
+      try {
+        const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(name.trim())}&itc=hi-t-i0-und&num=1`);
+        const json = await res.json();
+        if (json[0] === 'SUCCESS' && json[1][0][1][0]) {
+          const hName = json[1][0][1][0];
+          hindiNameCache[name] = hName;
+          const el = document.getElementById(elId);
+          if (el) el.innerText = `${name} (${hName})`;
+        }
+      } catch (e) {
+        const el = document.getElementById(elId);
+        if (el) el.innerText = name;
+      }
+    }
+
+    // WhatsApp Direct Receipt Share
+    function shareWhatsAppReceipt(name, amount, fest) {
+      const msg = `*मातरोडीह उत्सव समिति*\n🙏 धन्यवाद श्री *${name}* जी!\nआपकी ओर से *${fest || 'त्यौहार'}* हेतु *₹${amount}* का सहयोग प्राप्त हुआ।\n_समिति आपका हार्दिक आभार व्यक्त करती है।_`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function switchTab(tab) {
+      if (!state.isAdmin) {
+        if (state.currentUser && state.currentUser.role === "GRAMIN_ONLY" && (tab === "sahyog" || tab === "kharch")) {
+          alert(state.lang === 'en' ? "You are only permitted for Gramin Chanda!" : "आपको केवल ग्रामीण चंदा की अनुमति है!");
+          return;
+        }
+      }
+
+      state.currentTab = tab;
+      ["chanda", "sahyog", "kharch", "admin"].forEach(t => {
+        const pane = document.getElementById("pane" + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn = document.getElementById("tabBtn" + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tab) {
+          if (pane) pane.classList.remove("hidden");
+          if (btn) btn.className = "flex-1 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md transition cursor-pointer";
+        } else {
+          if (pane) pane.classList.add("hidden");
+          if (btn) btn.className = "flex-1 py-2 rounded-xl opacity-70 hover:opacity-100 transition cursor-pointer";
+        }
+      });
+
+      const bGramin = document.getElementById("botNavGramin");
+      const bVishesh = document.getElementById("botNavVishesh");
+      const bExp = document.getElementById("botNavExpense");
+      const bAdm = document.getElementById("botNavAdmin");
+
+      const activeClass = "flex flex-col items-center gap-1 text-amber-600 dark:text-amber-400 font-black flex-1 cursor-pointer";
+      const inactiveClass = "flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition flex-1 cursor-pointer";
+
+      bGramin.className = (tab === 'chanda') ? activeClass : inactiveClass;
+      bVishesh.className = (tab === 'sahyog') ? activeClass : inactiveClass;
+      bExp.className = (tab === 'kharch') ? "flex flex-col items-center gap-1 text-red-600 dark:text-red-400 font-black flex-1 cursor-pointer" : inactiveClass;
+      bAdm.className = (tab === 'admin') ? activeClass : inactiveClass;
+    }
+
+    async function loadData() {
+      const uPhone = state.currentUser ? state.currentUser.phone : "";
+      try {
+        
+const res = await fetch(`${API_URL}?action=getInitialData&festivalId=${state.activeFestival}&userPhone=${uPhone}`);
+        const result = await res.json();
+        if (result.status === "success") {
+          state.data = result;
+
+          // YEH CODE CATEGORIES KO DROPDOWN ME DAALEGA
+          if (result.expenseCategories && result.expenseCategories.length > 0) {
+            state.expenseCategories = result.expenseCategories;
+            const catSelect = document.getElementById("kharchCategory");
+            if (catSelect) {
+              catSelect.innerHTML = `<option value="">-- श्रेणी चुनें --</option>` + 
+                result.expenseCategories.map(c => `<option value="${c}">${c}</option>`).join("");
+            }
+          }
+
+          if (state.currentUser && !state.isAdmin) {
+            if (!result.userAccess || result.userAccess.status === "GUEST") {
+              localStorage.removeItem("m_user_registered");
+              state.currentUser = null;
+
+              document.getElementById("userHeaderName").innerText = "User";
+              document.getElementById("userHeaderAvatar").src = "https://api.dicebear.com/7.x/bottts/svg?seed=user";
+
+              document.getElementById("pendingLockScreen").classList.add("hidden");
+              document.getElementById("mandatoryRegScreen").classList.remove("hidden");
+            } else {
+              state.currentUser.status = result.userAccess.status;
+              state.currentUser.role = result.userAccess.role;
+              state.currentUser.registeredFestival = result.userAccess.registeredFestival;
+              if (result.userAccess.photo) state.currentUser.photo = result.userAccess.photo;
+              localStorage.setItem("m_user_registered", JSON.stringify(state.currentUser));
+              updateHeaderProfileUI();
+
+              if (state.currentUser.status !== "APPROVED") {
+                showPendingLockScreen();
+              } else {
+                document.getElementById("pendingLockScreen").classList.add("hidden");
+              }
+            }
+          }
+
+          const hasAllAccess = (state.currentUser && state.currentUser.role === "ALL_ACCESS") || state.isAdmin;
+          
+          const tabBtnSahyog = document.getElementById("tabBtnSahyog");
+          const tabBtnKharch = document.getElementById("tabBtnKharch");
+          const botNavVishesh = document.getElementById("botNavVishesh");
+          const botNavExpense = document.getElementById("botNavExpense");
+          const visheshCardSection = document.getElementById("visheshCardSection");
+          const expenseCardBlock = document.getElementById("expenseCardBlock");
+
+          if (hasAllAccess) {
+            tabBtnSahyog.classList.remove("hidden");
+            tabBtnKharch.classList.remove("hidden");
+            botNavVishesh.classList.remove("hidden");
+            botNavExpense.classList.remove("hidden");
+            if (visheshCardSection) visheshCardSection.classList.remove("hidden");
+            if (expenseCardBlock) expenseCardBlock.classList.remove("hidden");
+          } else {
+            tabBtnSahyog.classList.add("hidden");
+            tabBtnKharch.classList.add("hidden");
+            botNavVishesh.classList.add("hidden");
+            botNavExpense.classList.add("hidden");
+            if (visheshCardSection) visheshCardSection.classList.add("hidden");
+            if (expenseCardBlock) expenseCardBlock.classList.add("hidden");
+            if (state.currentTab === "sahyog" || state.currentTab === "kharch") {
+              switchTab("chanda");
+            }
+          }
+
+          const openFestivalsList = (result.festivals || []).filter(f => f.Status !== 'CLOSED');
+
+          if (openFestivalsList.length > 0) {
+            const dropdown = document.getElementById("festSelect");
+            const regFestDropdown = document.getElementById("regFestivalInput");
+
+            const isCurrentActiveOpen = openFestivalsList.some(f => f.Festival_ID === state.activeFestival);
+            if (!isCurrentActiveOpen) {
+              state.activeFestival = openFestivalsList[0].Festival_ID;
+              localStorage.setItem("m_active_fest", state.activeFestival);
+            }
+
+            dropdown.innerHTML = openFestivalsList.map(f => `
+              <option value="${f.Festival_ID}" ${f.Festival_ID === state.activeFestival ? 'selected' : ''}>
+                ${f.Festival_Title || f.Festival_ID}
+              </option>
+            `).join("");
+
+            if (regFestDropdown) {
+              regFestDropdown.innerHTML = openFestivalsList.map(f => `
+                <option value="${f.Festival_ID}">${f.Festival_Title || f.Festival_ID}</option>
+              `).join("");
+            }
+
+            const currentFestObj = openFestivalsList.find(f => f.Festival_ID === state.activeFestival);
+            if (currentFestObj && currentFestObj.Festival_Title) {
+              document.getElementById("hdrTitle").innerText = currentFestObj.Festival_Title;
+            } else if (result.registry && result.registry.title) {
+              document.getElementById("hdrTitle").innerText = result.registry.title;
+            }
+            if (result.registry && result.registry.upi) {
+              document.getElementById("adminUPIInput").value = result.registry.upi;
+            }
+          } else {
+            document.getElementById("festSelect").innerHTML = `<option value="">-- कोई चालू त्यौहार उपलब्ध नहीं --</option>`;
+            const regFestDropdown = document.getElementById("regFestivalInput");
+            if (regFestDropdown) regFestDropdown.innerHTML = `<option value="">-- कोई चालू त्यौहार उपलब्ध नहीं --</option>`;
+            document.getElementById("hdrTitle").innerText = "मातरोडीह उत्सव समिति";
+          }
+
+          renderUserDailyCards();
+
+          if (state.isAdmin) {
+            renderAdminStats();
+            renderAdminCardList();
+            renderAdminFestivalStatusLists();
+            renderAdminMembersUI(result.members || []);
+          }
+        }
+      } catch (err) {
+        console.error("Fetch err:", err);
+      }
+    }
+
+    function renderAdminFestivalStatusLists() {
+      const activeContainer = document.getElementById("adminActiveFestList");
+      const inactiveContainer = document.getElementById("adminInactiveFestList");
+      const festivals = state.data.festivals || [];
+
+      const activeList = festivals.filter(f => f.Status !== 'CLOSED');
+      const inactiveList = festivals.filter(f => f.Status === 'CLOSED');
+
+      if (!activeList.length) {
+        activeContainer.innerHTML = `<p class="opacity-50 py-1 text-xs">${state.lang === 'en' ? 'No active festival' : 'कोई सक्रिय त्यौहार नहीं है'}</p>`;
+      } else {
+        activeContainer.innerHTML = activeList.map(f => `
+          <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center">
+            <div>
+              <p class="font-black text-xs">${f.Festival_Title || f.Festival_ID}</p>
+              <p class="text-[10px] opacity-60">ID: ${f.Festival_ID}</p>
+            </div>
+            <button onclick="changeFestivalStatus('${f.Festival_ID}', 'CLOSED')" class="px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-[10px] cursor-pointer btn-3d">
+              ${state.lang === 'en' ? 'Close Festival 🛑' : 'त्यौहार बंद करें 🛑'}
+            </button>
+          </div>
+        `).join("");
+      }
+
+      if (!inactiveList.length) {
+        inactiveContainer.innerHTML = `<p class="opacity-50 py-1 text-xs">${state.lang === 'en' ? 'No closed festival' : 'कोई बंद त्यौहार नहीं है'}</p>`;
+      } else {
+        inactiveContainer.innerHTML = inactiveList.map(f => `
+          <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center opacity-85">
+            <div>
+              <p class="font-black text-xs">${f.Festival_Title || f.Festival_ID}</p>
+              <p class="text-[10px] text-red-500 font-bold">${state.lang === 'en' ? 'Status: CLOSED' : 'स्थिति: समाप्त / बंद (CLOSED)'}</p>
+            </div>
+            <button onclick="changeFestivalStatus('${f.Festival_ID}', 'OPEN')" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] cursor-pointer btn-3d">
+              ${state.lang === 'en' ? 'Re-open 🟢' : 'पुनः चालू करें 🟢'}
+            </button>
+          </div>
+        `).join("");
+      }
+    }
+
+    async function changeFestivalStatus(festId, status) {
+      if (!confirm(state.lang === 'en' ? `Change status of this festival to '${status}'?` : `क्या आप सच में इस त्यौहार की स्थिति '${status}' करना चाहते हैं?`)) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "toggleFestivalStatus", festivalId: festId, newStatus: status })
+        });
+        const resp = await res.json();
+        alert(resp.message);
+        loadData();
+      } catch (err) {
+        alert("Status update failed");
+      }
+    }
+
+    function renderUserDailyCards() {
+      const curUser = (state.currentUser && state.currentUser.name) ? state.currentUser.name.trim().toLowerCase() : "";
+      const curPhone = (state.currentUser && state.currentUser.phone) ? String(state.currentUser.phone).trim() : "";
+
+      // Admin login hone par sabhi live records dikhenge, volunteer ko sirf uska personal
+      const showAll = state.isAdmin;
+
+      const isRelevantEntry = (r) => {
+        if (showAll) return true;
+        const vName = String(r["Volunteer Name"] || "").trim().toLowerCase();
+        const vPhone = String(r["Phone"] || "").trim();
+        return (vName === curUser || (curPhone && vPhone === curPhone));
+      };
+
+      // --- TAB 1: Gramin vs Anya (Strict Separation) ---
+      const activeChandaSub = document.getElementById('chandaSubCategoryValue') ? document.getElementById('chandaSubCategoryValue').value : 'gramin';
+      const chandaSourceList = (activeChandaSub === 'gramin') ? (state.data.gramin || []) : (state.data.other || []);
+      const visibleGramin = chandaSourceList.filter(r => isRelevantEntry(r));
+      const totalG = visibleGramin.reduce((sum, item) => sum + (Number(item.Amount) || 0), 0);
+      
+      const badgeGramin = document.getElementById("badgeTodayGramin");
+      if (badgeGramin) {
+        badgeGramin.innerText = `₹${totalG} (${visibleGramin.length} ${activeChandaSub === 'gramin' ? 'ग्रामीण' : 'अन्य'})`;
+      }
+      
+      const gList = document.getElementById("userTodayGraminList");
+      if (gList) {
+        if (!visibleGramin.length) {
+          gList.innerHTML = `<p class="opacity-50 text-center py-3 rounded-2xl text-xs">कोई ${activeChandaSub === 'gramin' ? 'ग्रामीण चंदा' : 'अन्य चंदा'} दर्ज नहीं है</p>`;
+        } else {
+          gList.innerHTML = visibleGramin.map((r, i) => {
+            setTimeout(() => convertOldNameToHindi(r["Donor Name"], `g_card_name_${i}`), 30);
+            return `
+            <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center">
+              <div class="space-y-0.5">
+                <p class="font-black text-xs" id="g_card_name_${i}">${r["Donor Name"]}</p>
+                <p class="text-[10px] opacity-70 font-medium">माध्यम: <span class="text-amber-600 dark:text-amber-400 font-bold">${r.Mode}</span> ${r.Remark ? '| ' + r.Remark : ''}</p>
+              </div>
+              <div class="text-right">
+                <span class="font-black text-sm text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-xl pill-amount-3d">+₹${r.Amount}</span>
+              </div>
+            </div>`;
+          }).join("");
+        }
+      }
+
+      if (!state.isAdmin && state.currentUser && state.currentUser.role === "GRAMIN_ONLY") {
+        return;
+      }
+
+      // --- TAB 2: Sadasya vs Vishesh (Strict Separation) ---
+      const activeSahyogSub = document.getElementById('sahyogSubCategoryValue') ? document.getElementById('sahyogSubCategoryValue').value : 'sadasya';
+      const sahyogSourceList = (activeSahyogSub === 'sadasya') ? (state.data.sadasya || []) : (state.data.vishesh || []);
+      const visibleSahyog = sahyogSourceList.filter(r => isRelevantEntry(r));
+      const totalS = visibleSahyog.reduce((sum, item) => sum + (Number(item.Amount) || 0), 0);
+      
+      const badgeSahyog = document.getElementById("badgeTodaySahyog");
+      if (badgeSahyog) {
+        badgeSahyog.innerText = `₹${totalS} (${visibleSahyog.length} ${activeSahyogSub === 'sadasya' ? 'सदस्य' : 'विशेष'})`;
+      }
+      
+      const sList = document.getElementById("userTodaySahyogList");
+      if (sList) {
+        if (!visibleSahyog.length) {
+          sList.innerHTML = `<p class="opacity-50 text-center py-3 rounded-2xl text-xs">कोई ${activeSahyogSub === 'sadasya' ? 'सदस्य अंशदान' : 'विशेष सहयोग'} दर्ज नहीं है</p>`;
+        } else {
+          sList.innerHTML = visibleSahyog.map((r, i) => {
+            setTimeout(() => convertOldNameToHindi(r["Donor Name"], `s_card_name_${i}`), 30);
+            return `
+            <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center">
+              <div class="space-y-0.5">
+                <p class="font-black text-xs" id="s_card_name_${i}">${r["Donor Name"]}</p>
+                <p class="text-[10px] opacity-70 font-medium">विवरण: ${r.Remark || r.Mode}</p>
+              </div>
+              <div class="text-right">
+                <span class="font-black text-sm text-blue-700 bg-blue-100 dark:text-blue-400 dark:bg-blue-950/60 border border-blue-500/30 px-2.5 py-0.5 rounded-xl pill-amount-3d">+₹${r.Amount}</span>
+              </div>
+            </div>`;
+          }).join("");
+        }
+      }
+
+      // --- TAB 3: Expenses Feed ---
+      const visibleKharch = (state.data.expenses || []).filter(r => isRelevantEntry(r));
+      const totalK = visibleKharch.reduce((sum, item) => sum + (Number(item.Amount) || 0), 0);
+      const badgeKharch = document.getElementById("badgeTodayKharch");
+      if (badgeKharch) badgeKharch.innerText = `₹${totalK} (${visibleKharch.length} खर्च)`;
+      const kList = document.getElementById("userTodayKharchList");
+      if (kList) {
+        if (!visibleKharch.length) {
+          kList.innerHTML = `<p class="opacity-50 text-center py-3 rounded-2xl text-xs">कोई खर्च दर्ज नहीं किया गया है</p>`;
+        } else {
+          kList.innerHTML = visibleKharch.map(r => {
+            const hasBill = r.Bill_URL && String(r.Bill_URL).startsWith("http");
+            return `
+              <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center">
+                <div class="space-y-0.5">
+                  <p class="font-black text-xs">${r.Remark}</p>
+                  <p class="text-[10px] opacity-70">${r.Date ? String(r.Date).substring(0, 10) : ''} ${hasBill ? '• <a href="' + r.Bill_URL + '" target="_blank" class="text-blue-500 font-bold underline">बिल देखें 📄</a>' : ''}</p>
+                </div>
+                <div class="text-right">
+                  <span class="font-black text-sm text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950/60 border border-red-500/30 px-2.5 py-0.5 rounded-xl pill-amount-3d">-₹${r.Amount}</span>
+                </div>
+              </div>`;
+          }).join("");
+        }
+      }
+    }
+
+    function renderAdminStats() {
+      const sum = (arr) => arr.reduce((acc, curr) => acc + (Number(curr["Amount"]) || 0), 0);
+      const totalCredit = sum(state.data.gramin || []) + sum(state.data.other || []) + sum(state.data.sadasya || []) + sum(state.data.vishesh || []);
+      const totalDebit = sum(state.data.expenses || []);
+      document.getElementById("admTotalCredit").innerText = "₹" + totalCredit;
+      document.getElementById("admTotalDebit").innerText = "₹" + totalDebit;
+      document.getElementById("admNetBal").innerText = "₹" + (totalCredit - totalDebit);
+    }
+
+    function renderAdminCardList() {
+      const type = document.getElementById("adminCardViewSelect").value;
+      const container = document.getElementById("adminCardsContainer");
+      let list = [];
+      if (type === "gramin") list = state.data.gramin || [];
+      else if (type === "other") list = state.data.other || [];
+      else if (type === "sadasya") list = state.data.sadasya || [];
+      else if (type === "vishesh") list = state.data.vishesh || [];
+      else list = state.data.expenses || [];
+
+      // Live Total & Count calculation for selected category
+      const totalAmount = list.reduce((sum, item) => sum + (Number(item.Amount) || 0), 0);
+      const badge = document.getElementById("adminLiveCardBadge");
+      if (badge) {
+        badge.innerText = `₹${totalAmount} (${list.length} एंट्री)`;
+      }
+
+      if (!list.length) {
+        container.innerHTML = `<p class="opacity-50 text-center py-3 text-xs">${state.lang === 'en' ? 'No records found' : 'कोई रिकॉर्ड नहीं मिला'}</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map((item, i) => {
+        const hasBill = item.Bill_URL && String(item.Bill_URL).startsWith("http");
+        if (item["Donor Name"]) {
+          setTimeout(() => convertOldNameToHindi(item["Donor Name"], `adm_card_name_${i}`), 30);
+        }
+        return `
+          <div class="card-3d p-3 rounded-2xl flex justify-between items-center">
+            <div>
+              <h4 class="font-black text-xs" id="adm_card_name_${i}">${item["Donor Name"] || item["Remark"] || "-"}</h4>
+              <p class="text-[10px] opacity-70">${item.Timestamp || item.Date} | By: ${item["Volunteer Name"] || "-"} ${hasBill ? '• <a href="' + item.Bill_URL + '" target="_blank" class="text-blue-500 font-bold underline">बिल 📄</a>' : ''}</p>
+            </div>
+            <div class="font-black text-xs ${type === 'expense' ? 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950/60 border-red-500/30' : 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-950/60 border-emerald-500/30'} px-2.5 py-0.5 rounded-xl border pill-amount-3d">
+              ₹${item.Amount}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filterAdminCardView(val) {
+      const q = (val || "").toLowerCase();
+      const cards = document.querySelectorAll("#adminCardsContainer > div");
+      cards.forEach(c => {
+        c.style.display = c.innerText.toLowerCase().includes(q) ? "flex" : "none";
+      });
+    }
+
+    function onFestivalChange(val) {
+      state.activeFestival = val;
+      localStorage.setItem("m_active_fest", val);
+      loadData();
+    }
+
+    async function handleFormSubmit(e, type) {
+      e.preventDefault();
+      if (!state.currentUser) {
+        document.getElementById("mandatoryRegScreen").classList.remove("hidden");
+        return;
+      }
+
+      if (!state.isAdmin) {
+        if (state.currentUser.status !== "APPROVED") {
+          alert(state.lang === 'en' ? "Your profile is not approved yet!" : "आपकी प्रोफाइल अभी स्वीकृत नहीं है!");
+          showPendingLockScreen();
+          return;
+        }
+        if (state.currentUser.role === "GRAMIN_ONLY" && type !== "gramin") {
+          alert(state.lang === 'en' ? "You are only permitted for Gramin Chanda!" : "आपको केवल ग्रामीण चंदा की अनुमति है!");
+          return;
+        }
+        if (state.currentUser.registeredFestival && state.currentUser.registeredFestival !== state.activeFestival) {
+          alert(state.lang === 'en' ? `You are only authorized for "${state.currentUser.registeredFestival}"!` : `आप केवल "${state.currentUser.registeredFestival}" के लिए अधिकृत हैं!`);
+          return;
+        }
+      }
+
+      let payload = {
+        action: "addEntry",
+        festivalId: state.activeFestival,
+        type: type,
+        volunteer: state.currentUser.name,
+        phone: state.currentUser.phone,
+        volunteerPhone: state.currentUser.phone
+      };
+
+      if (type === "gramin") {
+        payload.type = document.getElementById("chandaSubCategoryValue").value; // 'gramin' ya 'other'
+        payload.date = document.getElementById("chandaDate").value;
+        payload.name = document.getElementById("chandaName").value.trim();
+        payload.nameHindi = document.getElementById("chandaNameHindi").value.trim();
+        payload.amount = document.getElementById("chandaAmount").value.trim();
+        payload.mode = document.querySelector('input[name="chandaMode"]:checked').value;
+        payload.remark = document.getElementById("chandaRemark").value;
+
+        const isDuplicate = (state.data.gramin || []).some(item => 
+          String(item["Donor Name"] || "").trim().toLowerCase() === payload.name.toLowerCase() &&
+          String(item.Amount || "").trim() === String(payload.amount)
+        );
+        if (isDuplicate) {
+          alert(`यह नाम "${payload.name}" और राशि ₹${payload.amount} पहले से दर्ज है! डुप्लीकेट एंट्री नहीं हो सकती।`);
+          return;
+        }
+
+      } else if (type === "vishesh" || type === "sahyog") {
+        payload.type = document.getElementById("sahyogSubCategoryValue").value; // 'sadasya' ya 'vishesh'
+        payload.date = document.getElementById("sahyogDate").value;
+        payload.name = document.getElementById("sahyogName").value.trim();
+        payload.nameHindi = document.getElementById("sahyogNameHindi").value.trim();
+        payload.amount = document.getElementById("sahyogAmount").value.trim();
+        payload.mode = document.querySelector('input[name="sahyogMode"]:checked').value;
+        payload.remark = document.getElementById("sahyogRemark").value;
+
+        const isDuplicate = (state.data.vishesh || []).some(item => 
+          String(item["Donor Name"] || "").trim().toLowerCase() === payload.name.toLowerCase() &&
+          String(item.Amount || "").trim() === String(payload.amount)
+        );
+        if (isDuplicate) {
+          alert(`यह नाम "${payload.name}" और राशि ₹${payload.amount} पहले से दर्ज है! डुप्लीकेट एंट्री नहीं हो सकती।`);
+          return;
+        }
+
+      } else if (type === "expense") {
+        payload.date = document.getElementById("kharchDate").value;
+        payload.category = document.getElementById("kharchCategory").value; // <--- Category ki value add hui
+        payload.remark = document.getElementById("kharchRemark").value;
+        payload.amount = document.getElementById("kharchAmount").value;
+        payload.mode = "Cash";
+
+        const fileInput = document.getElementById("kharchBillFile");
+        if (fileInput && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          payload.billFileName = file.name;
+          payload.billMimeType = file.type;
+          payload.billBase64 = await toBase64(file);
+        }
+      }
+
+      const newEntryObj = {
+        "Date": payload.date,
+        "Donor Name": payload.nameHindi ? `${payload.name} (${payload.nameHindi})` : payload.name,
+        "Amount": payload.amount,
+        "Mode": payload.mode,
+        "Volunteer Name": payload.volunteer,
+        "Phone": payload.phone,
+        "Remark": payload.remark
+      };
+
+      if (payload.type === "gramin") {
+        state.data.gramin.unshift(newEntryObj);
+      } else if (payload.type === "other") {
+        state.data.other.unshift(newEntryObj);
+      } else if (payload.type === "sadasya") {
+        state.data.sadasya.unshift(newEntryObj);
+      } else if (payload.type === "vishesh") {
+        state.data.vishesh.unshift(newEntryObj);
+      }
+      renderUserDailyCards();
+
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+        const resp = await res.json();
+        if (resp.status === "success") {
+          alert(state.lang === 'en' ? "Saved successfully!" : "सुरक्षित जमा हो गया!");
+          e.target.reset();
+          setCurrentDates();
+          document.getElementById("chandaQRContainer").classList.add("hidden");
+          document.getElementById("sahyogQRContainer").classList.add("hidden");
+          loadData();
+        } else {
+          alert(resp.message || "Error");
+          loadData();
+        }
+      } catch (err) {
+        alert("Network Error");
+      }
+    }
+
+    const toBase64 = file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+
+    async function handleAddNewFestival(e) {
+      e.preventDefault();
+      const payload = {
+        action: "addNewFestival",
+        festivalId: document.getElementById("newFestId").value,
+        festivalTitle: document.getElementById("newFestTitle").value,
+        upi: document.getElementById("newFestUPI").value,
+        password: document.getElementById("newFestPass").value
+      };
+      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+      const resp = await res.json();
+      alert(resp.message);
+      if (resp.status === "success") {
+        e.target.reset();
+        state.activeFestival = resp.festivalId || payload.festivalId;
+        localStorage.setItem("m_active_fest", state.activeFestival);
+        loadData();
+      }
+    }
+
+    async function submitAdminLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById("adminUser").value.trim();
+      const p = document.getElementById("adminPass").value.trim();
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "verifyAdmin", username: u, password: p, festivalId: state.activeFestival || "" })
+        });
+        const resp = await res.json();
+        if (resp.status === "success") {
+          state.isAdmin = true;
+          localStorage.setItem("m_admin_session", "active");
+
+          document.getElementById("adminLoginForm").classList.add("hidden");
+          document.getElementById("adminPanel").classList.remove("hidden");
+          document.getElementById("pendingLockScreen").classList.add("hidden");
+          loadData();
+        } else {
+          alert(resp.message || (state.lang === 'en' ? "Invalid Password!" : "गलत पासवर्ड!"));
+        }
+      } catch (err) {
+        alert(state.lang === 'en' ? "Login failed: Server unreachable" : "Login failed: सर्वर से कनेक्शन नहीं हो पाया");
+      }
+    }
+
+    function checkAdminSession() {
+      if (localStorage.getItem("m_admin_session") === "active") {
+        state.isAdmin = true;
+        const admForm = document.getElementById("adminLoginForm");
+        const admPanel = document.getElementById("adminPanel");
+        if (admForm) admForm.classList.add("hidden");
+        if (admPanel) admPanel.classList.remove("hidden");
+        const regScreen = document.getElementById("mandatoryRegScreen");
+        const lockScreen = document.getElementById("pendingLockScreen");
+        if (regScreen) regScreen.classList.add("hidden");
+        if (lockScreen) lockScreen.classList.add("hidden");
+      }
+    }
+
+    function logoutAdmin() {
+      state.isAdmin = false;
+      localStorage.removeItem("m_admin_session");
+      document.getElementById("adminPanel").classList.add("hidden");
+      document.getElementById("adminLoginForm").classList.remove("hidden");
+      loadData();
+    }
+
+    function renderAdminMembersUI(members) {
+      const pendingContainer = document.getElementById("adminPendingMembersList");
+      const approvedContainer = document.getElementById("adminApprovedMembersContainer");
+
+      const pendingList = members.filter(m => m.status === 'PENDING');
+      const approvedList = members.filter(m => m.status === 'APPROVED');
+
+      if (!pendingList.length) {
+        pendingContainer.innerHTML = `<p class="text-emerald-600 dark:text-emerald-400 text-center py-2 text-xs font-bold">${state.lang === 'en' ? '✓ No pending approvals' : '✓ कोई नया अनुमोदन लंबित नहीं है'}</p>`;
+      } else {
+        pendingContainer.innerHTML = pendingList.map(m => `
+          <div class="card-3d p-2.5 rounded-2xl space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <img src="${m.photo || 'https://api.dicebear.com/7.x/initials/svg?seed=' + m.name}" class="w-8 h-8 rounded-full object-cover border border-amber-400 bg-white" alt="User" />
+                <div>
+                  <span class="font-black text-xs">${m.name}</span>
+                  <span class="text-[10px] opacity-70 block">${m.phone} | 🎪 ${m.festival}</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-lg text-[9px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-500/30">${state.lang === 'en' ? 'New Request' : 'नया आवेदन'}</span>
+            </div>
+            <div class="flex gap-1.5 pt-1 border-t border-gray-200 dark:border-gray-800">
+              <button onclick="updateMemberPermission('${m.phone}', 'APPROVED', 'GRAMIN_ONLY')" class="flex-1 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-[10px] cursor-pointer btn-3d">
+                ${state.lang === 'en' ? '🟢 Only Gramin' : '🟢 केवल ग्रामीण'}
+              </button>
+              <button onclick="updateMemberPermission('${m.phone}', 'APPROVED', 'ALL_ACCESS')" class="flex-1 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] cursor-pointer btn-3d">
+                ${state.lang === 'en' ? '⚡ Gramin+Vishesh+Expense' : '⚡ ग्रामीण+विशेष+खर्च'}
+              </button>
+              <button onclick="updateMemberPermission('${m.phone}', 'REJECTED', 'NONE')" class="px-2.5 py-1.5 rounded-xl bg-red-100 dark:bg-red-950/80 hover:bg-red-200 text-red-600 dark:text-red-400 border border-red-500/30 font-black text-[10px] cursor-pointer">
+                ❌
+              </button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      if (!approvedList.length) {
+        approvedContainer.innerHTML = `<p class="opacity-50 text-center py-2 text-xs">${state.lang === 'en' ? 'No approved volunteers' : 'कोई स्वीकृत कार्यकर्ता नहीं है'}</p>`;
+      } else {
+        approvedContainer.innerHTML = approvedList.map(m => `
+          <div class="card-3d p-2.5 rounded-2xl flex justify-between items-center text-xs">
+            <div class="flex items-center gap-2">
+              <img src="${m.photo || 'https://api.dicebear.com/7.x/initials/svg?seed=' + m.name}" class="w-7 h-7 rounded-full object-cover border border-amber-400 bg-white" alt="User" />
+              <div>
+                <span class="font-black">${m.name}</span>
+                <span class="text-[10px] opacity-70 block">${m.phone} | ${m.role === 'ALL_ACCESS' ? (state.lang === 'en' ? '⚡ Gramin+Vishesh+Expense' : '⚡ ग्रामीण+विशेष+खर्च') : (state.lang === 'en' ? '🟢 Only Gramin' : '🟢 केवल ग्रामीण')}</span>
+              </div>
+            </div>
+            <button onclick="updateMemberPermission('${m.phone}', 'PENDING', 'NONE')" class="text-[10px] text-red-500 font-bold hover:underline cursor-pointer">
+              Lock/Block
+            </button>
+          </div>
+        `).join("");
+      }
+    }
+
+    async function updateMemberPermission(phone, status, role) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "updateMemberRole", phone: phone, status: status, role: role })
+      });
+      const resp = await res.json();
+      alert(resp.message);
+      loadData();
+    }
+
+    async function saveUPI() {
+      const upi = document.getElementById("adminUPIInput").value.trim();
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "updateUPI", festivalId: state.activeFestival, upi: upi })
+      });
+      const data = await res.json();
+      alert(data.message || "Updated");
+    }
+
+    async function searchLifetimeHistory() {
+      const q = document.getElementById("lifetimeSearchInput").value.trim();
+      if (!q) return;
+      const res = await fetch(`${API_URL}?action=searchLifetime&query=${encodeURIComponent(q)}`);
+      const resp = await res.json();
+      const container = document.getElementById("lifetimeResults");
+
+      if (!resp.records || !resp.records.length) {
+        container.innerHTML = `<p class="opacity-50 p-2 text-xs">${state.lang === 'en' ? 'No records found' : 'कोई रिकॉर्ड नहीं मिला'}</p>`;
+        return;
+      }
+      container.innerHTML = resp.records.map(r => `
+        <div class="card-3d p-2 rounded-xl flex justify-between text-xs">
+          <div>
+            <p class="font-black">${r.name}</p>
+            <p class="text-[10px] opacity-70">${r.festival} • ${r.date}</p>
+          </div>
+          <p class="font-black text-emerald-600 dark:text-emerald-400">₹${r.amount}</p>
+        </div>
+      `).join("");
+    }
+
+    function exportCSV() {
+      const rows = [
+        ["Type", "Date", "Name/Remark", "Amount", "Mode", "Volunteer"],
+        ...(state.data.gramin || []).map(r => ["Gramin", r.Date, r["Donor Name"] + (r.Remark ? " (" + r.Remark + ")" : ""), r.Amount, r.Mode, r["Volunteer Name"]]),
+        ...(state.data.other || []).map(r => ["Other", r.Date, r["Donor Name"] + (r.Remark ? " (" + r.Remark + ")" : ""), r.Amount, r.Mode, r["Volunteer Name"]]),
+        ...(state.data.sadasya || []).map(r => ["Sadasya", r.Date, r["Donor Name"] + (r.Remark ? " (" + r.Remark + ")" : ""), r.Amount, r.Mode, r["Volunteer Name"]]),
+        ...(state.data.vishesh || []).map(r => ["Vishesh", r.Date, r["Donor Name"] + " - " + (r.Remark || ""), r.Amount, r.Mode, r["Volunteer Name"]]),
+        ...(state.data.expenses || []).map(r => ["Expense", r.Date, r.Remark, r.Amount, r.Mode, r["Volunteer Name"]])
+      ];
+      let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `${state.activeFestival}_report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function downloadA4PDF() {
+      const btn = document.getElementById("btnPdfDownload");
+      const origText = btn.innerText;
+      btn.innerText = state.lang === 'en' ? "Generating PDF Drive Link..." : "PDF ड्राइव लिंक तैयार हो रहा है...";
+      btn.disabled = true;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ format: "a4", unit: "pt" });
+        
+        const festTitle = (state.activeFestival || "Festival").replace(/_/g, ' ');
+        const genDate = new Date().toLocaleDateString();
+
+        const sum = (arr) => arr.reduce((acc, curr) => acc + (Number(curr["Amount"]) || 0), 0);
+        const totalG = sum(state.data.gramin || []);
+        const totalO = sum(state.data.other || []);
+        const totalM = sum(state.data.sadasya || []);
+        const totalS = sum(state.data.vishesh || []);
+        const totalIncome = totalG + totalO + totalM + totalS;
+        const totalExpense = sum(state.data.expenses || []);
+        const netBal = totalIncome - totalExpense;
+
+        // ================= PAGE 1: GRAMIN CHANDA DETAILS =================
+        doc.setFontSize(16);
+        doc.setTextColor(234, 88, 12);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(12);
+        doc.setTextColor(50);
+        doc.text("Section 1: Gramin Chanda Collection Details (ग्रामीण)", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Generated: ${genDate} | Total Donors: ${(state.data.gramin || []).length} | Total Collection: Rs. ${totalG}`, 40, 80);
+
+        const tableGramin = (state.data.gramin || []).map((r, i) => [
+          i + 1,
+          r.Date ? String(r.Date).substring(0, 10) : "",
+          r["Donor Name"] || "-",
+          r.Remark || "-",
+          "Rs. " + r.Amount,
+          r.Mode || "Cash",
+          r["Volunteer Name"] || "-"
+        ]);
+
+        doc.autoTable({
+          startY: 95,
+          head: [["#", "Date", "Donor Name", "Remark", "Amount", "Mode", "Volunteer"]],
+          body: tableGramin.length ? tableGramin : [["-", "-", "No records found", "-", "-", "-", "-"]],
+          headStyles: { fillColor: [234, 88, 12] },
+          styles: { fontSize: 8, cellPadding: 4 }
+        });
+
+        // ================= PAGE 2: ANYA CHANDA DETAILS =================
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setTextColor(217, 119, 6);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(12);
+        doc.setTextColor(50);
+        doc.text("Section 2: Anya Chanda (Bahari / Dukan) Details (अन्य)", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Generated: ${genDate} | Total Donors: ${(state.data.other || []).length} | Total Collection: Rs. ${totalO}`, 40, 80);
+
+        const tableOther = (state.data.other || []).map((r, i) => [
+          i + 1,
+          r.Date ? String(r.Date).substring(0, 10) : "",
+          r["Donor Name"] || "-",
+          r.Remark || "-",
+          "Rs. " + r.Amount,
+          r.Mode || "Cash",
+          r["Volunteer Name"] || "-"
+        ]);
+
+        doc.autoTable({
+          startY: 95,
+          head: [["#", "Date", "Donor Name / Dukan", "Remark", "Amount", "Mode", "Volunteer"]],
+          body: tableOther.length ? tableOther : [["-", "-", "No records found", "-", "-", "-", "-"]],
+          headStyles: { fillColor: [217, 119, 6] },
+          styles: { fontSize: 8, cellPadding: 4 }
+        });
+
+        // ================= PAGE 3: SADASYA ANSHDAN DETAILS =================
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setTextColor(16, 185, 129);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(12);
+        doc.setTextColor(50);
+        doc.text("Section 3: Sadasya Anshdan Details (सदस्य अंशदान)", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Generated: ${genDate} | Total Members: ${(state.data.sadasya || []).length} | Total Collection: Rs. ${totalM}`, 40, 80);
+
+        const tableSadasya = (state.data.sadasya || []).map((r, i) => [
+          i + 1,
+          r.Date ? String(r.Date).substring(0, 10) : "",
+          r["Donor Name"] || "-",
+          r.Remark || "-",
+          "Rs. " + r.Amount,
+          r.Mode || "Cash",
+          r["Volunteer Name"] || "-"
+        ]);
+
+        doc.autoTable({
+          startY: 95,
+          head: [["#", "Date", "Member Name", "Remark", "Amount", "Mode", "Volunteer"]],
+          body: tableSadasya.length ? tableSadasya : [["-", "-", "No records found", "-", "-", "-", "-"]],
+          headStyles: { fillColor: [16, 185, 129] },
+          styles: { fontSize: 8, cellPadding: 4 }
+        });
+
+        // ================= PAGE 4: VISHESH SAHYOG DETAILS =================
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setTextColor(37, 99, 235);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(12);
+        doc.setTextColor(50);
+        doc.text("Section 4: Special Support (Vishesh Sahyog) Details (विशेष)", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Generated: ${genDate} | Total Donors: ${(state.data.vishesh || []).length} | Total Collection: Rs. ${totalS}`, 40, 80);
+
+        const tableVishesh = (state.data.vishesh || []).map((r, i) => [
+          i + 1,
+          r.Date ? String(r.Date).substring(0, 10) : "",
+          r["Donor Name"] || "-",
+          r.Remark || "-",
+          "Rs. " + r.Amount,
+          r.Mode || "Cash",
+          r["Volunteer Name"] || "-"
+        ]);
+
+        doc.autoTable({
+          startY: 95,
+          head: [["#", "Date", "Donor Name", "Description", "Amount", "Mode", "Volunteer"]],
+          body: tableVishesh.length ? tableVishesh : [["-", "-", "No records found", "-", "-", "-", "-"]],
+          headStyles: { fillColor: [37, 99, 235] },
+          styles: { fontSize: 8, cellPadding: 4 }
+        });
+
+        // ================= PAGE 5: EXPENSES DETAILS =================
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setTextColor(220, 38, 38);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(12);
+        doc.setTextColor(50);
+        doc.text("Section 5: Festival Expense Details (खर्च विवरण)", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Generated: ${genDate} | Total Expenses: ${(state.data.expenses || []).length} | Total Amount: Rs. ${totalExpense}`, 40, 80);
+
+        const tableExpense = (state.data.expenses || []).map((r, i) => [
+          i + 1,
+          r.Date ? String(r.Date).substring(0, 10) : "",
+          r.Remark || "-",
+          "Rs. " + r.Amount,
+          r.Mode || "Cash",
+          r.Bill_URL ? "Drive Bill Attached" : "-",
+          r["Volunteer Name"] || "-"
+        ]);
+
+        doc.autoTable({
+          startY: 95,
+          head: [["#", "Date", "Expense Description", "Amount", "Mode", "Bill Status", "Volunteer"]],
+          body: tableExpense.length ? tableExpense : [["-", "-", "No expenses recorded", "-", "-", "-", "-"]],
+          headStyles: { fillColor: [220, 38, 38] },
+          styles: { fontSize: 8, cellPadding: 4 }
+        });
+
+        // ================= PAGE 6: FINANCIAL SUMMARY =================
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setTextColor(234, 88, 12);
+        doc.text("Matrodih Utsav Samiti - " + festTitle, 40, 45);
+        doc.setFontSize(13);
+        doc.setTextColor(50);
+        doc.text("Section 6: Final Financial Statement & Summary", 40, 65);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Report Date: ${genDate} | Financial Audit Summary`, 40, 80);
+
+        // Smart Category Detection (Agar sheet me column ho toh wo, nahi toh remark se auto-detect)
+        // Strict Category: Sirf Category column padhega, Remark ko bilkul nahi dekhega
+        const detectEnglishCategory = (item) => {
+          // Sheet se category column ki value nikaalna
+          const catVal = String(item["Category"] || item["category"] || item["खर्च श्रेणी"] || item["Expense Category"] || item[10] || "").trim();
+
+          // Shart: Agar Category ka column KHALI hai, toh chupchaap Miscellaneous me daalo
+          if (!catVal) {
+            return "Miscellaneous / Other Expenses";
+          }
+
+          // Shart: Agar Category bhari hui hai, toh use clean English me convert karo
+          if (catVal.includes("मूर्ति") || catVal.includes("श्रृंगार")) return "Murti & Shringar";
+          if (catVal.includes("टेंट") || catVal.includes("लाइट") || catVal.includes("साउंड")) return "Tent, Sound & Lighting";
+          if (catVal.includes("पूजा") || catVal.includes("हवन")) return "Puja Samagri & Rituals";
+          if (catVal.includes("प्रसाद") || catVal.includes("खानपान") || catVal.includes("भंडारा")) return "Prasad & Catering";
+          if (catVal.includes("विसर्जन") || catVal.includes("बाजा")) return "Visarjan, Band & Fireworks";
+          if (catVal.includes("विविध") || catVal.includes("अन्य")) return "Miscellaneous / Other Expenses";
+
+          return catVal; // Agar sheet me pehle se English me likha hai toh waisa hi aayega
+        };
+
+        // Category-wise Breakdown calculation
+        const expCategoryMap = {};
+        (state.data.expenses || []).forEach(item => {
+          const cat = detectEnglishCategory(item);
+          const amt = Number(item.Amount || item.amount) || 0;
+          expCategoryMap[cat] = (expCategoryMap[cat] || 0) + amt;
+        });
+
+        // 4 Heads Income + Category-wise Expenses Breakdown Table
+        const summaryTable = [
+          ["A", "Kul Gramin Chanda Collection", "Rs. " + totalG],
+          ["B", "Kul Anya (Vyaparik/Bahari) Chanda", "Rs. " + totalO],
+          ["C", "Kul Sadasya Anshdan", "Rs. " + totalM],
+          ["D", "Kul Vishesh Sahyog", "Rs. " + totalS],
+          ["", "Total Utsav Income (A + B + C + D)", "Rs. " + totalIncome],
+          ["---", "--------------------------------------", "----------"],
+          ["E", "Kharch Vivran (Category-Wise Expenses):", ""]
+        ];
+
+        let catIdx = 1;
+        for (const [catName, catAmt] of Object.entries(expCategoryMap)) {
+          summaryTable.push([`E.${catIdx++}`, catName, "Rs. " + catAmt]);
+        }
+
+        summaryTable.push(["", "Total Utsav Expenses (E)", "Rs. " + totalExpense]);
+        summaryTable.push(["---", "--------------------------------------", "----------"]);
+        summaryTable.push(["NET", "Net Shesh Balance (Income - Expense)", "Rs. " + netBal]);
+
+        doc.autoTable({
+          startY: 100,
+          head: [["#", "Account Head", "Amount (INR)"]],
+          body: summaryTable,
+          headStyles: { fillColor: [15, 23, 42] },
+          bodyStyles: { fontSize: 10, cellPadding: 6 },
+          columnStyles: {
+            0: { cellWidth: 35 },
+            1: { cellWidth: 330 },
+            2: { cellWidth: 150, fontStyle: 'bold' }
+          }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 80;
+        doc.setFontSize(10);
+        doc.setTextColor(70);
+        doc.text("Signature: Treasurer / Cashier", 60, finalY);
+        doc.text("Signature: President / Secretary", 360, finalY);
+
+        const pdfBase64 = doc.output("datauristring");
+        const fileName = `${state.activeFestival || 'Report'}_FullReport_${Date.now()}.pdf`;
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "savePdfReport",
+            pdfBase64: pdfBase64,
+            fileName: fileName,
+            festivalId: state.activeFestival || ""
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === "success" && result.url) {
+          window.open(result.url, "_blank");
+        } else {
+          doc.save(fileName.endsWith(".pdf") ? fileName : (fileName + ".pdf"));
+        }
+      } catch (err) {
+        alert("PDF export failed: " + err.toString());
+      } finally {
+        btn.innerText = origText;
+        btn.disabled = false;
+      }
+    }
+
+    function setCurrentDates() {
+      const today = new Date().toISOString().split("T")[0];
+      ["chandaDate", "sahyogDate", "kharchDate"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = today;
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("m_theme") || "light";
+      state.theme = savedTheme;
+      document.documentElement.className = savedTheme;
+      const tIcon = document.getElementById("themeIcon");
+      if (tIcon) tIcon.innerText = (savedTheme === "light") ? "🌙" : "☀️";
+
+      const savedLang = localStorage.getItem("m_lang") || "hi";
+      applyLanguage(savedLang);
+
+      checkAdminSession();
+      setCurrentDates();
+      checkMandatoryRegistration();
+      loadData();
+    });
+  </script>
+</body>
+</html>
